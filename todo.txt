@@ -1,0 +1,62 @@
+But how?
+--------
+Make sure article content is put in <p>, to avoid <br>s
+Disable Aloha Save button until there are changes (even better: unless), look into smartContentChange
+Fix Aloha blocking in some new comment fields, when adding several comments in succession
+
+Comments
+--------
+Fix margin below Publish buttons
+Switch comment deleters to cancel after click
+Deleter hover strike-through
+Higlight comment if given an article#index url
+Anchor symbol for comment anchor-links
+Update page with comments from other sessions
+Validate the links
+
+Cleanup
+-------
+Get rid of dots in Aloha floating panel
+add_article.js: onkeyup instead of JQuery's keyup()
+Use table, not dl on Write form
+hiccup.page-helpers html5
+Fix tlog.Save: error getting dictionary file http://localhost:8080/scripts/aloha/plugins/tlog.Save/i18n/en.dict
+Split out repettion from slug.js and add_article.js
+Write macro for view options
+
+Correctness
+-----------
+Avoid collisions between slugs and fixed routes
+Rule out clashes between Comment IDs and slugs (deletion queue)
+Do not try removing CSS class empty for every single comment submission
+
+Considerations
+--------------
+Consider marking times as GMT
+Consider New or Add instead of Write
+Consider dropping any pretense of IE6 support, maybe even drop html5shiv
+
+Features
+--------
+G-channel update blob list
+G-channel update admin article list
+Handle delete/cancel-delete asynchronously
+Channels
+Tags
+RSS
+Pingbacks
+Thumbnails
+Blog-wide search
+Pages as sequences of blocks
+
+Testing
+-------
+Write tests
+Validate HTML, CSS
+Cross-Browser
+
+Optimization
+------------
+Memchache/memoization
+Minify JS and CSS
+Etags?
