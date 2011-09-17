@@ -357,6 +357,7 @@ dl#timestamps dt {
 }
 #comments input[type='submit'] {
    margin-top:1.2em; /* Get Submit button to be on baseline grid, as the comment table refuses to fit. */
+   margin-bottom:1.7em;
    height:1.5em;
    width:100%;
    border:0.05em solid #acf;
@@ -369,6 +370,9 @@ dl#timestamps dt {
    box-shadow:0 0.05em 0.05em 0.05em rgba(0,20,80,0.1);
    text-shadow:0 0.05em #fff;
    color:#048;
+}
+#comments input[type='submit'].last {
+   margin-bottom:0.2em;
 }
 #comments input[type='submit']:hover {
    background-color:#dffaff;
@@ -410,6 +414,8 @@ dl#timestamps dt {
    padding-bottom:1.5em;
    width:40em;
 }
+
+
 /* Counteract Ext.js CSS
    --------------------- */
 

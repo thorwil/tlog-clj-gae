@@ -98,6 +98,11 @@ function expandCommentForm (parentId, bodyField, bodyFieldClone, following) {
     // Mark the field as now being part of an expanded form:
     $(bodyField.parentNode).addClass('expanded');
 
+    // Mark the submit button if is the last element in the branch:
+    if (following == 0) {
+	$(bodyField.parentNode.lastChild).addClass('last');
+    }
+
     // dis/enable button on changes in the editable and Author field:
     var u = function(){updateSubmitButton(bodyField.id, authorId, submitButton);};
     bodyField.onkeyup = u;

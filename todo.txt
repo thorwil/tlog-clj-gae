@@ -6,7 +6,6 @@ Fix Aloha blocking in some new comment fields, when adding several comments in s
 
 Comments
 --------
-Fix margin below Publish buttons
 Switch comment deleters to cancel after click
 Deleter hover strike-through
 Higlight comment if given an article#index url
