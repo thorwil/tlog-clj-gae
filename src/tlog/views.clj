@@ -24,6 +24,11 @@
 (defmacro when-> [x & fs]
   `(when ~x (-> ~x ~@fs)))
 
+(defn any->nil
+  "Take whatever arguments and always return nil. Useful for neutralizing arguments in Hiccup forms."
+  [& more]
+  nil)
+
 
 ;; HTML Parts
 
@@ -143,21 +148,17 @@
     text
     [:a {:href link} text]))
 
-(defn always-nil
-  [& more]
-  nil)
-
 (defhtml comment-rendition
   [{:keys [id css-class head time-stamps index link author body updated delete-queued]}
    children
-   option-comment-deleter]
+   switch-comment-deleter]
   [:div.branch
    [:div {:id id, :class (str "comment " css-class (when head " head"))}
     time-stamps
     [:p.meta
      [:a.comment-anchor {:name index :href (str "#" index)} (str "#" index " ")]
      [:span.author (linked-or-plain link author) ": "]
-     ((or option-comment-deleter always-nil) id delete-queued)]
+     (switch-comment-deleter id delete-queued)]
     [:div.body body]
     children]])
 
@@ -174,30 +175,30 @@
 (defn comments-rendition-recur
   "Takes parent ID and a list of trees, each tree consisting of a comment and its children. Render
    nested Comments."
-  [parent comments option-comment-deleter]
+  [parent comments switch-comment-deleter]
   (cons
    (for [tree comments]
      (let [t (first tree)
 	   ts (rest tree)]
        (comment-rendition (into t (derive-from-times t))
-			  (comments-rendition-recur (:id t) ts option-comment-deleter)
-                          option-comment-deleter)))
+			  (comments-rendition-recur (:id t) ts switch-comment-deleter)
+                          switch-comment-deleter)))
    ;; Place comment field as a last sibling:
    (comment-field parent (-> comments last count))))
 
 (defhtml comments-rendition
-  [parent comments option-comment-deleter]
+  [parent comments switch-comment-deleter]
   [:div#comments
    [:h3 "Comments"]
    [:noscript [:p "Without JavaScript, you cannot add comments, here!"]]
    [:div {:class (when (empty? comments) "empty")}
-          (comments-rendition-recur parent comments option-comment-deleter)]])
+          (comments-rendition-recur parent comments switch-comment-deleter)]])
 
 (defhtml tree-rendition
-  [{:keys [comments id option-comment-deleter] :as all}]
+  [{:keys [comments id switch-comment-deleter] :as all}]
   (article-rendition (into all
 			   (derive-from-times all)))
-  (comments-rendition id comments option-comment-deleter))
+  (comments-rendition id comments switch-comment-deleter))
 
 (defn switch-title-linked-true
   "Do wrap the title in a link, for use in the journal."
@@ -408,9 +409,13 @@
                                              ["/admin/queue-delete/comment/" "Delete"])]
                            (html [:a.comment-deleter {:href (str link id)} text]))))
 ;; but it also has to be an option for normal views, thus wrapped in a map:
-(def option-comment-deleter
-  {:option-comment-deleter
+(def switch-comment-deleter-true
+  {:switch-comment-deleter
    comment-deleter})
+
+(def switch-comment-deleter-false
+  {:switch-comment-deleter
+   any->nil})
 
 (def option-footer
      {:option-footer
@@ -490,12 +495,13 @@
 		    option-aloha-admin
   		    (option-admin-bar)]}]
   [tree {:everyone [tree-rendition
+                    switch-comment-deleter-false
 		    switch-title-linked-false
 		    option-footer
 		    option-comment-field
 		    option-aloha]
 	 :admin [option-aloha-admin
-                 option-comment-deleter
+                 switch-comment-deleter-true
 		 option-slug-form
 		 (option-admin-bar)]}]
   [not-found {:everyone [not-found-rendition
@@ -537,6 +543,8 @@
 				       (derive-from-times comment*)
 				       (when (zero? following) {:head "true"})])
 			 (comment-field (:id comment*) following)
-                         (when (some #{:admin} roles) comment-deleter))
+                         (if (some #{:admin} roles)
+                           comment-deleter
+                           any->nil))
       response
       content-type-html))
