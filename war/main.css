@@ -414,7 +414,9 @@ dl#timestamps dt {
    padding-bottom:1.5em;
    width:40em;
 }
-
+#comments .to-be-deleted, #comments .delete-queued {
+   text-decoration:line-through;
+}
 
 /* Counteract Ext.js CSS
    --------------------- */

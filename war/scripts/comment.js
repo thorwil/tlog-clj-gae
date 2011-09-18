@@ -18,6 +18,20 @@
  * which replaces the comment form. The clone is used to restore the comment field for the parent. */
 
 
+// Bind hover effect to 'Delete' links:
+$('.do-delete').each(function () {
+			 var branch = this.parentNode.parentNode;
+			 this.onmouseover = function () {$(branch).addClass('to-be-deleted');};
+			 this.onmouseout = function () {$(branch).removeClass('to-be-deleted');};
+		     });
+
+// Bind hover effect to 'Cancel Delete' links:
+$('.cancel-delete').each(function () {
+			 var branch = this.parentNode.parentNode;
+			 this.onmouseover = function () {$(branch).removeClass('to-be-deleted');};
+			 this.onmouseout = function () {$(branch).addClass('to-be-deleted');};
+		     });
+
 // Initially bound to each reply field's onmouseover:
 function configureField(parentId, field, following){
     /* Cause comment-highlighting on hovering the reply field once, then rebind onmouseover for

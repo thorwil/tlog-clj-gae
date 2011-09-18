@@ -6,7 +6,6 @@ Fix Aloha blocking in some new comment fields, when adding several comments in s
 
 Comments
 --------
-Deleter hover strike-through
 Allow admin to edit comments
 Higlight comment if given an article#index url
 Anchor symbol for comment anchor-links
@@ -17,6 +16,7 @@ Cleanup
 -------
 Get rid of dots in Aloha floating panel
 add_article.js: onkeyup instead of JQuery's keyup()
+Comments: use a query in comment.js instead of onmouseover as comment field attribute
 Use table, not dl on Write form
 hiccup.page-helpers html5
 Fix tlog.Save: error getting dictionary file http://localhost:8080/scripts/aloha/plugins/tlog.Save/i18n/en.dict

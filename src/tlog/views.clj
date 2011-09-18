@@ -174,10 +174,10 @@
 
 ;; on-add-comment will need this directly ...
 (def comment-deleter
-  (fn [id delete-queued] (let [[link text] (if delete-queued
-                                             ["/admin/cancel-delete/" "Cancel deletion"]
-                                             ["/admin/queue-delete/comment/" "Delete"])]
-                           (html [:a.comment-deleter {:href (str link id)} text]))))
+  (fn [id delete-queued] (let [[class link text] (if delete-queued
+                                                   ["cancel-delete" "/admin/cancel-delete/" "Cancel deletion"]
+                                                   ["do-delete" "/admin/queue-delete/comment/" "Delete"])]
+                           (html [:a {:class (str "comment-deleter " class) :href (str link id)} text]))))
 
 ;; ... but it also has to be an option for normal views, thus wrapped in a map:
 (def switch-comment-deleter-true
@@ -311,7 +311,7 @@
   [{:keys [id css-class head time-stamps index link author body updated delete-queued]}
    children
    switch-comment-deleter]
-  [:div.branch
+  [:div {:class (str "branch" (when delete-queued " delete-queued"))}
    [:div {:id id, :class (str "comment " css-class (when head " head"))}
     time-stamps
     [:p.meta
