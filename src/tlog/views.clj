@@ -148,7 +148,7 @@
   nil)
 
 (defhtml comment-rendition
-  [{:keys [id css-class head time-stamps index link author body updated]}
+  [{:keys [id css-class head time-stamps index link author body updated delete-queued]}
    children
    option-comment-deleter]
   [:div.branch
@@ -157,7 +157,7 @@
     [:p.meta
      [:a.comment-anchor {:name index :href (str "#" index)} (str "#" index " ")]
      [:span.author (linked-or-plain link author) ": "]
-     ((or option-comment-deleter always-nil) id)]
+     ((or option-comment-deleter always-nil) id delete-queued)]
     [:div.body body]
     children]])
 
@@ -240,7 +240,7 @@
   [:h2 "Articles"]
   [:table#stored-items
    (for [i (:items buildup)]
-     (admin-articles-table-row (:slug i) (:queue-deleted i) (:title i)))]
+     (admin-articles-table-row (:slug i) (:delete-queued i) (:title i)))]
   (maybe-page-navigation ((juxt :headwards :tailwards) buildup) "/admin/"))
 
 (defhtml article-form-rendition
@@ -255,9 +255,9 @@
   [:input {:type "submit" :value "Add new article" :disabled "disabled"}])
 
 (defhtml file-form-tr
-  [{:keys [filename queue-deleted]}]
+  [{:keys [filename delete-queued]}]
   [:tr
-   (let [[a c] (if queue-deleted
+   (let [[a c] (if delete-queued
 		 ["/admin/cancel-delete/" "Cancel deletion"]
 		 ["/admin/queue-delete/blob/" "Delete"])]
      [:td [:a {:href (str a filename)} c]])
@@ -402,7 +402,11 @@
 	  [:script {:src "/scripts/comment.js"}]))})
 
 ;; on-add-comment will need this directly,
-(def comment-deleter #(html [:a.comment-deleter {:href (str "/admin/queue-delete/comment/" %)} "Delete"]))
+(def comment-deleter
+  (fn [id delete-queued] (let [[link text] (if delete-queued
+                                             ["/admin/cancel-delete/" "Cancel deletion"]
+                                             ["/admin/queue-delete/comment/" "Delete"])]
+                           (html [:a.comment-deleter {:href (str link id)} text]))))
 ;; but it also has to be an option for normal views, thus wrapped in a map:
 (def option-comment-deleter
   {:option-comment-deleter

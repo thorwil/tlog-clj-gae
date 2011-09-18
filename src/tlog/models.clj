@@ -1,4 +1,3 @@
-
 (ns tlog.models
   (:require [appengine-magic.services.datastore :as ds]
 	    [appengine-magic.services.task-queues :as task]
@@ -45,11 +44,6 @@
 
 ;; Pagination functions used for both Article and BlobInfo
 
-(defn queue-deleted?
-  "Does there exist a DeletionQueueItem for the given key?"
-  [key*]
-  (ds/exists? DeletionQueueItem key*))
-
 (defn get-total
   "Query for number of datastore items of the given kind."
   [kind]
@@ -86,11 +80,6 @@
 	[headwards tailwards] (headwards-tailwards from-to per-page total)]
 	(hash-map-syms-as-keys items headwards tailwards)))
 
-(defn insert-queue-deleted-state
-  [i k]
-  "Add to the item map, whether the item is on the deletion queue."
-  (assoc i :queue-deleted (queue-deleted? (k i))))
-
 (defn default-range
   "Number range for the n last items to appear, if the url doesn't include a range."
   [entity n]
@@ -98,7 +87,25 @@
     [total (- total (dec n))]))
 
 
-;; Articles:
+;; Enriching property maps for Articles, Blobs and Comments
+
+(defn assoc-datastore-id-property
+  "assoc datastore ID for entities with no specific key property."
+  [e]
+  (assoc e :id (-> e ds/key-id str)))
+
+(defn delete-queued?
+  "Does there exist a DeletionQueueItem for the given key?"
+  [key-string]
+  (ds/exists? DeletionQueueItem key-string))
+
+(defn assoc-delete-queued-property
+  "assoc whether the item is on the deletion queue."
+  [item key-string]
+  (assoc item :delete-queued (delete-queued? (key-string item))))
+
+
+;; Articles
 
 (defn add-article!
   [{:strs [title slug body]}]
@@ -162,7 +169,8 @@
 (defn articles-heads-status
   []
   "Maps of Article properties plus whether Article is on deletion queue."
-  (insert-queue-deleted-state (articles-heads) :slug))
+  (let [a (articles-heads)]
+    (assoc-delete-queued-property a :slug)))
 
 (defn change-article-slug!
   "Change the slug pointing to a specific Article."
@@ -186,7 +194,7 @@
 		   (fn [as] (for [a as]
 			      (let [id (ds/key-id a)
 				    slug (article-id->slug id)]
-				((comp #(insert-queue-deleted-state % :slug)
+				((comp #(assoc-delete-queued-property % :slug)
 				       #(assoc % :slug slug :id id)
 				       f)
 				 a))))))
@@ -204,11 +212,6 @@
 
 ;; Comments
 
-(defn datastore-id->property
-  "Add datastore ID for entities with no specific key property to the property map."
-  [e]
-  (assoc e :id (ds/key-id e)))
-
 (defn add-comment!
   "Save new comment to datastore. Return comment map with datastore ID included."
   [{:strs [article-id parent author link body]}]
@@ -216,13 +219,14 @@
 	body-t (-> body ds/as-text)
 	now (System/currentTimeMillis)
 	index (-> Comment get-total inc)] ; Start at 1, not 0, as this will be exposed in the view
-    (datastore-id->property (ds/save! (Comment. parent* index author link body now now)))))
+    (assoc-datastore-id-property (ds/save! (Comment. parent* index author link body now now)))))
 
 (defn comments-for-parent
   "Query for Comments that reference parent-id."
   [parent-id]
   (for [c (ds/query :kind Comment :filter (= :parent parent-id))]
-    (datastore-id->property c)))
+    (let [c* (assoc-datastore-id-property c)]
+      (assoc-delete-queued-property c* :id))))
 
 (defn comments-for-parent-head-marked
   [parent-id]
@@ -276,7 +280,7 @@
 (defn blobs-heads-status
   []
   "Maps of Blob properties plus whether a Blob is on the deletion queue."
-  (insert-queue-deleted-state (blobs-heads) :filename))
+  (assoc-delete-queued-property (blobs-heads) :filename))
 
 (defn blobs-paginated
   "Retrieve a range of Blobs. Add data for page navigation."
@@ -285,17 +289,17 @@
 		   from-to conf/blobs-per-page
 		   :creation
 		   #(for [b %]
-		      (insert-queue-deleted-state b :filename))))
+		      (assoc-delete-queued-property b :filename))))
 
 (defn blobs-default-range []
   "Blob number range for the n last items to appear, if the url doesn't include a range."
   (default-range "__BlobInfo__" conf/blobs-per-page))
 
 
-;; Deletion queue functions used for Articles, Blobs and Comments
+;; Deletion queue functions for Articles, Blobs and Comments
 
 (defn queue-delete!
-  "Add item id to queue for delayed, cancel-able deletion."
+  "Takes kind and identifier as strings. Adds item id to queue for delayed, cancel-able deletion."
   [kind identifier]
   (task/add! :url "/admin/delete"
              :countdown-ms (* 1000 60 2)
