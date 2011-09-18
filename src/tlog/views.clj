@@ -30,6 +30,165 @@
   nil)
 
 
+;; Optional HTML parts
+;; These add key-value pairs to the map, so functions later in the pipeline can extract the results.
+
+(def admin-bar-item-strings
+     (array-map :list ["List" "/admin"]
+		:write ["Write" "/admin/write"]
+		:file ["File" "/admin/file"]
+		:logout ["Log out" "/logout"]))
+
+(defhtml admin-bar-item-linked
+  [[text link]]
+  [:a {:href link} text])
+
+(defhtml admin-bar-item-plain
+  [[text link]]
+  [:span text])
+
+(def admin-bar-defaults
+     (fmap admin-bar-item-linked admin-bar-item-strings))
+
+(defn admin-bar-items
+  "Takes a key for the plain item. Returns items for the admin-bar."
+  [k]
+  (assoc admin-bar-defaults k
+	 (admin-bar-item-plain (k admin-bar-item-strings))))
+
+(defn option-admin-bar*
+  "Area with links for the logged in admin."
+  [items]
+  {:option-admin-bar
+   (html
+    [:nav {:id "admin-bar"}
+     [:ul
+      (for [v (vals items)]
+	[:li v])]])})
+
+(defn option-admin-bar
+  ([]
+     (option-admin-bar* admin-bar-defaults))
+  ([k]
+     (option-admin-bar* (admin-bar-items k))))
+
+(defn option-slug-form
+  "Mini-form to allow the admin to change the slug of an article."
+  [{:keys [slug token]}]
+  {:option-slug-form
+   (html
+    [:p {:class "slug"}
+     [:label "Slug"]
+     [:input {:type "text" :name "slug" :value slug :pattern "[a-zäöüß0-9_-]*"}]
+     [:input {:type "submit" :value "Move" :disabled "disabled" :style "width:15em;"}]]
+    [:script {:src "http://www.google.com/jsapi"}]
+    [:script "google.load('jquery', '1.4');"]
+    [:script {:src "/_ah/channel/jsapi"}]
+    [:script (str "channel = new goog.appengine.Channel('" token "');")]
+    [:script {:src "/scripts/slug.js"}])})
+
+(def option-aloha-admin
+     {:aloha-save-plugin
+      [:script {:src "/scripts/aloha/plugins/tlog.Save/plugin.js"}]
+      :aloha-admin-editables
+      "$(function() {$('.admin-editable').aloha();});"})
+
+(defn option-aloha
+  [{:keys [collected-scripts aloha-save-plugin aloha-admin-editables]}] 
+  {:collected-scripts
+   (cons collected-scripts
+	 (html
+	  [:script {:src "/scripts/aloha/aloha.js"}]
+	  [:script {:src "/scripts/aloha/plugins/tlog.Format/plugin.js"}]
+	  [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.Table/plugin.js"}]
+	  [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.List/plugin.js"}]
+	  aloha-save-plugin
+	  [:script
+	   "GENTICS.Aloha.settings = {
+         'plugins': {
+             'tlog.Format': {
+                  // all elements with no specific configuration get this configuration
+	          config: ['strong', 'em', 'sub', 'sup', 'ol', 'ul', 'p', 'title', 'h1', 'h2',
+                            'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat'],
+	          editables: {
+                      // no formatting allowed for title
+                      '.title': [ ]
+	          }
+	      },
+              'com.gentics.aloha.plugins.List': {
+                  config: ['ul', 'ol'],
+                  editables: {
+                      // no lists allowed for title
+		      '.title': [ ]
+                  }
+              }
+         }
+      }
+      "
+	   aloha-admin-editables
+	   "
+      $(function() {$('.editable').aloha();});"]))})
+
+(defn article-form-js
+  [{:keys [slugs token collected-scripts]}]
+  {:collected-scripts
+   (cons collected-scripts
+	 (html
+	  (let [slugs* (interpose "','" slugs)]
+	    [:script "var slugs = ['" slugs* "'];"])
+	    [:script {:type "text/javascript" :src "http://www.google.com/jsapi"}]
+	    [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
+	    [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
+	    [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" token "');")]
+	    [:script {:type "text/javascript" :src "/scripts/add_article.js"}]))})
+
+(defn option-comment-field
+  [{:keys [collected-scripts]}]
+  {:collected-scripts
+   (cons collected-scripts
+	 (html
+	  [:script {:src "/scripts/comment.js"}]))})
+
+(def option-footer
+     {:option-footer
+      (html [:footer [:p conf/footer]])})
+
+(def option-noscript-warning
+     {:option-noscript-warning
+      (html [:noscript [:div#noscript-warning "This won't work with JavaScript disabled ;)"]])})
+
+
+;; Switchables
+
+(defn switch-title-linked-true
+  "Do wrap the title in a link, for use in the journal."
+  [{:keys [id slug title]}]
+  {:switch-title-linked
+   (html [:a.article-link {:id (str "title_" id), :href (str "/" slug)} title])})
+
+(defn switch-title-linked-false
+  "Do not wrap the title in a link, as that link would be to where we already are."
+  [{:keys [id title]}]
+  {:switch-title-linked
+   (html [:span {:id (str "title_" id), :class "admin-editable"} title])})
+
+;; on-add-comment will need this directly ...
+(def comment-deleter
+  (fn [id delete-queued] (let [[link text] (if delete-queued
+                                             ["/admin/cancel-delete/" "Cancel deletion"]
+                                             ["/admin/queue-delete/comment/" "Delete"])]
+                           (html [:a.comment-deleter {:href (str link id)} text]))))
+
+;; ... but it also has to be an option for normal views, thus wrapped in a map:
+(def switch-comment-deleter-true
+  {:switch-comment-deleter
+   comment-deleter})
+
+(def switch-comment-deleter-false
+  {:switch-comment-deleter
+   any->nil})
+
+
 ;; HTML Parts
 
 (def title-with
@@ -200,18 +359,6 @@
 			   (derive-from-times all)))
   (comments-rendition id comments switch-comment-deleter))
 
-(defn switch-title-linked-true
-  "Do wrap the title in a link, for use in the journal."
-  [{:keys [id slug title]}]
-  {:switch-title-linked
-   (html [:a.article-link {:id (str "title_" id), :href (str "/" slug)} title])})
-
-(defn switch-title-linked-false
-  "Do not wrap the title in a link, as that link would be to where we already are."
-  [{:keys [id title]}]
-  {:switch-title-linked
-   (html [:span {:id (str "title_" id), :class "admin-editable"} title])})
-
 (defhtml journal-li
   "<li> element with a whole article."
   [i]
@@ -281,149 +428,6 @@
 
 (def not-allowed-rendition
      {:buildup (html [:p "You do not have the necessary permissions to access this page."])})
-
-
-;; Optional HTML parts
-;; These add key-value pairs to the map, so functions later in the pipeline can extract the results.
-
-(def admin-bar-item-strings
-     (array-map :list ["List" "/admin"]
-		:write ["Write" "/admin/write"]
-		:file ["File" "/admin/file"]
-		:logout ["Log out" "/logout"]))
-
-(defhtml admin-bar-item-linked
-  [[text link]]
-  [:a {:href link} text])
-
-(defhtml admin-bar-item-plain
-  [[text link]]
-  [:span text])
-
-(def admin-bar-defaults
-     (fmap admin-bar-item-linked admin-bar-item-strings))
-
-(defn admin-bar-items
-  "Takes a key for the plain item. Returns items for the admin-bar."
-  [k]
-  (assoc admin-bar-defaults k
-	 (admin-bar-item-plain (k admin-bar-item-strings))))
-
-(defn option-admin-bar*
-  "Area with links for the logged in admin."
-  [items]
-  {:option-admin-bar
-   (html
-    [:nav {:id "admin-bar"}
-     [:ul
-      (for [v (vals items)]
-	[:li v])]])})
-
-(defn option-admin-bar
-  ([]
-     (option-admin-bar* admin-bar-defaults))
-  ([k]
-     (option-admin-bar* (admin-bar-items k))))
-
-(defn option-slug-form
-  "Mini-form to allow the admin to change the slug of an article."
-  [{:keys [slug token]}]
-  {:option-slug-form
-   (html
-    [:p {:class "slug"}
-     [:label "Slug"]
-     [:input {:type "text" :name "slug" :value slug :pattern "[a-zäöüß0-9_-]*"}]
-     [:input {:type "submit" :value "Move" :disabled "disabled" :style "width:15em;"}]]
-    [:script {:src "http://www.google.com/jsapi"}]
-    [:script "google.load('jquery', '1.4');"]
-    [:script {:src "/_ah/channel/jsapi"}]
-    [:script (str "channel = new goog.appengine.Channel('" token "');")]
-    [:script {:src "/scripts/slug.js"}])})
-
-(def option-aloha-admin
-     {:aloha-save-plugin
-      [:script {:src "/scripts/aloha/plugins/tlog.Save/plugin.js"}]
-      :aloha-admin-editables
-      "$(function() {$('.admin-editable').aloha();});"})
-
-(defn option-aloha
-  [{:keys [collected-scripts aloha-save-plugin aloha-admin-editables]}] 
-  {:collected-scripts
-   (cons collected-scripts
-	 (html
-	  [:script {:src "/scripts/aloha/aloha.js"}]
-	  [:script {:src "/scripts/aloha/plugins/tlog.Format/plugin.js"}]
-	  [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.Table/plugin.js"}]
-	  [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.List/plugin.js"}]
-	  aloha-save-plugin
-	  [:script
-	   "GENTICS.Aloha.settings = {
-         'plugins': {
-             'tlog.Format': {
-                  // all elements with no specific configuration get this configuration
-	          config: ['strong', 'em', 'sub', 'sup', 'ol', 'ul', 'p', 'title', 'h1', 'h2',
-                            'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat'],
-	          editables: {
-                      // no formatting allowed for title
-                      '.title': [ ]
-	          }
-	      },
-              'com.gentics.aloha.plugins.List': {
-                  config: ['ul', 'ol'],
-                  editables: {
-                      // no lists allowed for title
-		      '.title': [ ]
-                  }
-              }
-         }
-      }
-      "
-	   aloha-admin-editables
-	   "
-      $(function() {$('.editable').aloha();});"]))})
-
-(defn article-form-js
-  [{:keys [slugs token collected-scripts]}]
-  {:collected-scripts
-   (cons collected-scripts
-	 (html
-	  (let [slugs* (interpose "','" slugs)]
-	    [:script "var slugs = ['" slugs* "'];"])
-	    [:script {:type "text/javascript" :src "http://www.google.com/jsapi"}]
-	    [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
-	    [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
-	    [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" token "');")]
-	    [:script {:type "text/javascript" :src "/scripts/add_article.js"}]))})
-
-(defn option-comment-field
-  [{:keys [collected-scripts]}]
-  {:collected-scripts
-   (cons collected-scripts
-	 (html
-	  [:script {:src "/scripts/comment.js"}]))})
-
-;; on-add-comment will need this directly,
-(def comment-deleter
-  (fn [id delete-queued] (let [[link text] (if delete-queued
-                                             ["/admin/cancel-delete/" "Cancel deletion"]
-                                             ["/admin/queue-delete/comment/" "Delete"])]
-                           (html [:a.comment-deleter {:href (str link id)} text]))))
-;; but it also has to be an option for normal views, thus wrapped in a map:
-(def switch-comment-deleter-true
-  {:switch-comment-deleter
-   comment-deleter})
-
-(def switch-comment-deleter-false
-  {:switch-comment-deleter
-   any->nil})
-
-(def option-footer
-     {:option-footer
-      (html [:footer [:p conf/footer]])})
-
-(def option-noscript-warning
-     {:option-noscript-warning
-      (html [:noscript [:div#noscript-warning "This won't work with JavaScript disabled ;)"]])})
 
 
 ;; Views taking roles into consideration
