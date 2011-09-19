@@ -298,8 +298,8 @@
    [:header
     option-slug-form
     [:h2 switch-title-linked]
-    time-stamps
-    [:div {:id id :class (str "article-body hyphenate admin-editable " css-class)} body]]])
+    time-stamps]
+    [:div {:id id :class (str "article-body hyphenate admin-editable " css-class)} body]])
 
 (defn linked-or-plain
   [link text]
