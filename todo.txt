@@ -6,8 +6,8 @@ Fix Aloha blocking in some new comment fields, when adding several comments in s
 
 Comments
 --------
+Higlight article on hovering bottom comment field
 Allow admin to edit comments
-Higlight comment if given an article#index url
 Anchor symbol for comment anchor-links
 Update page with comments from other sessions
 Validate the links

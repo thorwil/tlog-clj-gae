@@ -417,6 +417,15 @@ dl#timestamps dt {
 #comments .to-be-deleted, #comments .delete-queued {
    text-decoration:line-through;
 }
+#comments .anchored > p > a {
+   /*font-weight:900;*/
+   background-color:#b30;
+   color:#fff;
+   padding-left:1ex;
+   padding-right:0.8ex;
+   margin-right:0.5ex;
+   border-radius:100%;
+}
 
 /* Counteract Ext.js CSS
    --------------------- */

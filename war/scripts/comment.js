@@ -18,6 +18,23 @@
  * which replaces the comment form. The clone is used to restore the comment field for the parent. */
 
 
+// Highlight comment if its index is given as hash in the URL:
+
+var hash = window.location.hash; // includes leading # or is an empty string
+
+// ... on load:
+if (hash) { // empty string is false
+    var anchored = $('.index-' + hash.substring(1));
+    anchored.addClass('anchored');
+}
+
+// ... on clicking an anchor link on the page:
+window.onhashchange = function (e) {
+    $('.index-' + e.oldURL.split('#')[1]).removeClass('anchored');
+    $('.index-' + e.newURL.split('#')[1]).addClass('anchored');
+};
+
+
 // Bind hover effect to 'Delete' links:
 $('.do-delete').each(function () {
 			 var branch = this.parentNode.parentNode;

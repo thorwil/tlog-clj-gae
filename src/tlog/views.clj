@@ -312,7 +312,7 @@
    children
    switch-comment-deleter]
   [:div {:class (str "branch" (when delete-queued " delete-queued"))}
-   [:div {:id id, :class (str "comment " css-class (when head " head"))}
+   [:div {:id id, :class (str "comment " css-class " index-" index (when head " head"))}
     time-stamps
     [:p.meta
      [:a.comment-anchor {:name index :href (str "#" index)} (str "#" index " ")]
