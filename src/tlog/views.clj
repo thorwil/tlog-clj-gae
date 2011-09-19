@@ -334,16 +334,21 @@
 (defn comments-rendition-recur
   "Takes parent ID and a list of trees, each tree consisting of a comment and its children. Render
    nested Comments."
-  [parent comments switch-comment-deleter]
+  [parent comments switch-comment-deleter & [following]]
   (cons
-   (for [tree comments]
-     (let [t (first tree)
-	   ts (rest tree)]
-       (comment-rendition (into t (derive-from-times t))
-			  (comments-rendition-recur (:id t) ts switch-comment-deleter)
-                          switch-comment-deleter)))
+   (let [total (count comments)
+         comments-indexed (map-indexed vector comments)]
+     (for [[index tree] comments-indexed]
+       (let [t (first tree)
+             ts (rest tree)]
+         (comment-rendition (into t (derive-from-times t))
+                            (comments-rendition-recur (:id t)
+                                                      ts
+                                                      switch-comment-deleter
+                                                      (- total index 1))
+                            switch-comment-deleter))))
    ;; Place comment field as a last sibling:
-   (comment-field parent (-> comments last count))))
+   (comment-field parent (or following 0))))
 
 (defhtml comments-rendition
   [parent comments switch-comment-deleter]
