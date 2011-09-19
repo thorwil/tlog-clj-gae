@@ -240,7 +240,7 @@
    retrieved comments. The whole will be wrapped in ()."
   [id]
   (for [c (comments-for-parent-head-marked id)]
-    (cons c (comments (:id c)))))
+    (cons c (comments (Integer. (:id c))))))
 
 
 ;; Trees (Article and Comments)
