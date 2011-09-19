@@ -334,21 +334,19 @@
 (defn comments-rendition-recur
   "Takes parent ID and a list of trees, each tree consisting of a comment and its children. Render
    nested Comments."
-  [parent comments switch-comment-deleter & [following]]
+  [parent comments switch-comment-deleter following]
   (cons
-   (let [total (count comments)
-         comments-indexed (map-indexed vector comments)]
-     (for [[index tree] comments-indexed]
-       (let [t (first tree)
-             ts (rest tree)]
-         (comment-rendition (into t (derive-from-times t))
-                            (comments-rendition-recur (:id t)
-                                                      ts
-                                                      switch-comment-deleter
-                                                      (- total index 1))
-                            switch-comment-deleter))))
+   (let [total (count comments)]
+     (map (fn [index [tree & trees]] (comment-rendition (into tree (derive-from-times tree))
+                                                  (comments-rendition-recur (:id tree)
+                                                                            trees
+                                                                            switch-comment-deleter
+                                                                            (- total index 1))
+                                                  switch-comment-deleter))
+          (range)
+          comments))
    ;; Place comment field as a last sibling:
-   (comment-field parent (or following 0))))
+   (comment-field parent following)))
 
 (defhtml comments-rendition
   [parent comments switch-comment-deleter]
@@ -356,7 +354,7 @@
    [:h3 "Comments"]
    [:noscript [:p "Without JavaScript, you cannot add comments, here!"]]
    [:div {:class (when (empty? comments) "empty")}
-          (comments-rendition-recur parent comments switch-comment-deleter)]])
+          (comments-rendition-recur parent comments switch-comment-deleter 0)]])
 
 (defhtml tree-rendition
   [{:keys [comments id switch-comment-deleter] :as all}]
