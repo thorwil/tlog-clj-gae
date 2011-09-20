@@ -6,7 +6,6 @@ Fix Aloha blocking in some new comment fields, when adding several comments in s
 
 Comments
 --------
-Color blue in comment table
 Baselines
 Allow admin to edit comments
 - Make Aloha as loaded for admin deal with comments

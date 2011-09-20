@@ -302,10 +302,11 @@ dl#timestamps dt {
 .branch .branch .branch .branch .branch .branch .branch .branch .branch .branch .times {
    margin-left:-23.6em!important;
 }
-
 .comment-form {
-   color:#048;
    margin-bottom:-0.1em; /* Counter-act downward drift, likely not quite accurate. */
+}
+.comment-form * {
+   color:#048;
 }
 #comments .editable {
    margin-top:1.5em;
