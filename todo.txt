@@ -6,7 +6,6 @@ Fix Aloha blocking in some new comment fields, when adding several comments in s
 
 Comments
 --------
-Margins below Publish button
 Allow admin to edit comments
 Anchor symbol for comment anchor-links
 Update page with comments from other sessions

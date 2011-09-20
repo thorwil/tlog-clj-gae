@@ -265,6 +265,10 @@ dl#timestamps dt {
 #comments > div.empty {
    border-left:none;
 }
+#comments > div > div:nth-last-child(2) div {
+   /* Make sure gap between last 2nd level comment field and last first level comment field is one line */
+   margin-bottom:-0.05em;
+}
 
 /* Ugly, but how else to get the margin notes to line up? Odd values determined by testing. */
 #comments .times {
@@ -301,7 +305,7 @@ dl#timestamps dt {
 
 .comment-form {
    color:#048;
-   margin-bottom:-0.13em; /* Counter-act downward drift, likely not quite accurate. */
+   margin-bottom:-0.1em; /* Counter-act downward drift, likely not quite accurate. */
 }
 #comments .editable {
    margin-top:1.5em;
@@ -330,13 +334,13 @@ dl#timestamps dt {
    padding-left:1em;
    border-left:0.05em solid #999;
 }
+.comment .comment .comment .head * {
+   /* Fix double line gap after first comment form on this level. */
+   margin-bottom:0!important;
+}
 #comments .comment + .head,
 #comments .comment .head {
    padding-top:1.5em;
-}
-#comments > div > .comment-form { /* Correction for the last comment field: */
-   margin-top:1.5em;
-   margin-left:-1.05em;
 }
 #comments table {
    margin-top:-0.1em; /* Gets the borders of the editable and the table cell in alignment. */
@@ -427,6 +431,10 @@ article .to-be-replied-to,
    padding-right:0.8ex;
    margin-right:0.5ex;
    border-radius:100%;
+}
+#comments > div > .comment-form { /* Correction for the last comment field: */
+   margin-top:1.5em!important;
+   margin-left:-1.05em!important;
 }
 
 /* Counteract Ext.js CSS
