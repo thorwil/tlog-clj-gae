@@ -129,6 +129,15 @@
 	   "
       $(function() {$('.editable').aloha();});"]))})
 
+(def option-comments-admin-editable {:option-comments-admin-editable "admin-editable"})
+
+(defn option-comment-field
+  [{:keys [collected-scripts]}]
+  {:collected-scripts
+   (cons collected-scripts
+	 (html
+	  [:script {:src "/scripts/comment.js"}]))})
+
 (defn article-form-js
   [{:keys [slugs token collected-scripts]}]
   {:collected-scripts
@@ -141,13 +150,6 @@
 	    [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
 	    [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" token "');")]
 	    [:script {:type "text/javascript" :src "/scripts/add_article.js"}]))})
-
-(defn option-comment-field
-  [{:keys [collected-scripts]}]
-  {:collected-scripts
-   (cons collected-scripts
-	 (html
-	  [:script {:src "/scripts/comment.js"}]))})
 
 (def option-footer
      {:option-footer
@@ -308,7 +310,8 @@
     [:a {:href link} text]))
 
 (defhtml comment-rendition
-  [{:keys [id css-class head time-stamps index link author body updated delete-queued]}
+  [{:keys [id css-class head time-stamps index link author body updated delete-queued
+           option-comments-admin-editable]}
    children
    switch-comment-deleter]
   [:div {:class (str "branch" (when delete-queued " delete-queued"))}
@@ -318,7 +321,7 @@
      [:a.comment-anchor {:name index :href (str "#" index)} (str "#" index " ")]
      [:span.author (linked-or-plain link author) ": "]
      (switch-comment-deleter id delete-queued)]
-    [:div.body body]
+    [:div {:class (str "body " option-comments-admin-editable)} body]
     children]])
 
 (defhtml comment-field
@@ -334,34 +337,36 @@
 (defn comments-rendition-recur
   "Takes parent ID and a list of branches, each consisting of a comment and its children. Renders
    nested Comments."
-  [parent comments switch-comment-deleter following]
+  [{:keys [id comments switch-comment-deleter] :as params}
+   following] ;; id refers to parent
   (cons
    (let [total (count comments)]
      (map (fn [done [branch & branches]]
-            (comment-rendition (into branch (derive-from-times branch))
-                               (comments-rendition-recur (:id branch)
-                                                         branches
-                                                         switch-comment-deleter
+            (comment-rendition (reduce into [branch
+                                             (derive-from-times branch)
+                                             (select-keys params [:option-comments-admin-editable])])
+                               (comments-rendition-recur (assoc params :id (:id branch)
+                                                                       :comments branches)
                                                          (- total done))
                                switch-comment-deleter))
           (range 1 Double/POSITIVE_INFINITY) ;; effectively up to (inc total)
           comments))
    ;; Place comment field as a last sibling:
-   (comment-field parent following)))
+   (comment-field id following)))
 
 (defhtml comments-rendition
-  [parent comments switch-comment-deleter]
+  [{:keys [comments] :as params}]
   [:div#comments
    [:h3 "Comments"]
    [:noscript [:p "Without JavaScript, you cannot add comments, here!"]]
    [:div {:class (when (empty? comments) "empty")}
-          (comments-rendition-recur parent comments switch-comment-deleter 0)]])
+    (comments-rendition-recur params 0)]])
 
 (defhtml tree-rendition
-  [{:keys [comments id switch-comment-deleter] :as all}]
-  (article-rendition (into all
-			   (derive-from-times all)))
-  (comments-rendition id comments switch-comment-deleter))
+  [params]
+  (article-rendition (into params
+			   (derive-from-times params)))
+  (comments-rendition params))
 
 (defhtml journal-li
   "<li> element with a whole article."
@@ -508,14 +513,15 @@
 		    option-footer
 		    option-comment-field
 		    option-aloha]
-	 :admin [option-aloha-admin
+	 :admin [option-comments-admin-editable
+                 option-aloha-admin
                  switch-comment-deleter-true
 		 option-slug-form
 		 (option-admin-bar)]}]
   [not-found {:everyone [not-found-rendition
 			 option-footer]
 	      :admin [(option-admin-bar)]}]
-  ;; Admin views:
+  ;; Admin only views:
   [admin {:admin [admin-rendition
 		  (option-admin-bar :list)
 		  option-noscript-warning]}]
@@ -542,17 +548,20 @@
   (plain (interpose " " slugs)))
 
 
-;; POST views (independent of roles)
+;; POST views
 
 (defn on-add-comment
   "Answer for add-comment POST handler. Return comment-rendition."
   [roles comment* following]
-  (-> (comment-rendition (reduce into [comment*
-				       (derive-from-times comment*)
-				       (when (zero? following) {:head "true"})])
-			 (comment-field (:id comment*) following)
-                         (if (some #{:admin} roles)
-                           comment-deleter
-                           any->nil))
-      response
-      content-type-html))
+  (let [[option-comments-admin-editable* comment-deleter*] (if (some #{:admin} roles)
+                                                             [option-comments-admin-editable comment-deleter]
+                                                             [nil                            any->nil])]
+    (-> (comment-rendition (reduce into [comment*
+                                         (derive-from-times comment*)
+                                         option-comments-admin-editable*
+                                         (when (zero? following) {:head "true"})])
+                           (comment-field (:id comment*)
+                                          following)
+                           comment-deleter*)
+        response
+        content-type-html)))

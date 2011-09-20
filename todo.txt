@@ -6,13 +6,18 @@ Fix Aloha blocking in some new comment fields, when adding several comments in s
 
 Comments
 --------
+Color blue in comment table
+Baselines
 Allow admin to edit comments
+- Make Aloha as loaded for admin deal with comments
+- Update Aloha after adding a comment as admin
 Anchor symbol for comment anchor-links
 Update page with comments from other sessions
 Validate the links
 
 Cleanup
 -------
+See if on-add-comment would be nicer written like normal views (watch out for lack of constantly)
 Get rid of dots in Aloha floating panel
 add_article.js: onkeyup instead of JQuery's keyup()
 Comments: use a query in comment.js instead of onmouseover as comment field attribute
