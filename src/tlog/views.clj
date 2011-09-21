@@ -149,7 +149,7 @@
 	    [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
 	    [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
 	    [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" token "');")]
-	    [:script {:type "text/javascript" :src "/scripts/add_article.js"}]))})
+	    [:script {:type "text/javascript" :src "/scripts/article.js"}]))})
 
 (def option-footer
      {:option-footer

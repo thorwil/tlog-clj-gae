@@ -18,7 +18,7 @@ Cleanup
 -------
 See if on-add-comment would be nicer written like normal views (watch out for lack of constantly)
 Get rid of dots in Aloha floating panel
-add_article.js: onkeyup instead of JQuery's keyup()
+article.js: onkeyup instead of JQuery's keyup()
 Comments: use a query in comment.js instead of onmouseover as comment field attribute
 Use table, not dl on Write form
 hiccup.page-helpers html5
