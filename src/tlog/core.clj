@@ -252,8 +252,15 @@
 ;; Routing
 
 (defmacro defroutes
+  "def name to routes."
   [name & more]
   `(def ~name (app ~@more)))
+
+(defmacro defroutes-wrap-param
+  "def name to routes, with handlers wrapped in wrap-params."
+  [name & more]
+  (let [more* (map #(%1 %2) (cycle [identity #(list wrap-params %)]) more)]
+    `(def ~name (app ~@more*))))
 
 (defroutes admin-get-routes
   ; Match "...file", "...file/", "...file/2-1" ...:
@@ -266,14 +273,14 @@
   ["write" &] (article-form)  
   [&] (not-found))
 
-(defroutes admin-post-routes
-  ["file-callback"] (wrap-params file-callback)
-  ["file_done"] (wrap-params file-done)
-  ["delete"] (wrap-params delete!)
-  ["move"] (wrap-params change-article-slug!)
-  ["add-article"] (wrap-params add-article!)
-  ["save-article"] (wrap-params save-article!)
-  ["update-comment"] (wrap-params update-comment!))
+(defroutes-wrap-param admin-post-routes
+  ["file-callback"] file-callback
+  ["file_done"] file-done
+  ["delete"] delete!
+  ["move"] change-article-slug!
+  ["add-article"] add-article!
+  ["save-article"] save-article!
+  ["update-comment"] update-comment!)
 
 (defroutes get-routes
   ;; Match for root, using default range, or match given index range:
