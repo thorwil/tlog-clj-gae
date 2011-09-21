@@ -219,13 +219,15 @@
 	body-t (-> body ds/as-text)
 	now (System/currentTimeMillis)
 	index (-> Comment get-total inc)] ; Start at 1, not 0, as this will be exposed in the view
-    (assoc-datastore-id-property (ds/save! (Comment. parent* index author link body now now)))))
+    (-> (ds/save! (Comment. parent* index author link body-t now now))
+        assoc-datastore-id-property
+        unText-body)))
 
 (defn comments-for-parent
   "Query for Comments that reference parent-id."
   [parent-id]
   (for [c (ds/query :kind Comment :filter (= :parent parent-id))]
-    (let [c* (assoc-datastore-id-property c)]
+    (let [c* (-> c assoc-datastore-id-property unText-body)]
       (assoc-delete-queued-property c* :id))))
 
 (defn comments-for-parent-head-marked
@@ -241,6 +243,14 @@
   [id]
   (for [c (comments-for-parent-head-marked id)]
     (cons c (comments (Integer. (:id c))))))
+
+(defn update-comment!
+  "Update existing Comment record"
+  [{:strs [id body]}]
+  (let [body-t (-> body ds/as-text)
+	now (System/currentTimeMillis)
+	old (ds/retrieve Comment (Integer. id))]
+    (ds/save! (assoc old :body body-t :updated now))))
 
 
 ;; Trees (Article and Comments)

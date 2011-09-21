@@ -321,7 +321,8 @@
      [:a.comment-anchor {:name index :href (str "#" index)} (str "#" index " ")]
      [:span.author (linked-or-plain link author) ": "]
      (switch-comment-deleter id delete-queued)]
-    [:div {:class (str "body " option-comments-admin-editable)} body]
+    [:div {:id (str "comment-body_" id)
+           :class (str "body " option-comments-admin-editable)} body]
     children]])
 
 (defhtml comment-field

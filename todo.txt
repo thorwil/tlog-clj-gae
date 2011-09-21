@@ -6,10 +6,11 @@ Fix Aloha blocking in some new comment fields, when adding several comments in s
 
 Comments
 --------
-Baselines
-Allow admin to edit comments
-- Make Aloha as loaded for admin deal with comments
-- Update Aloha after adding a comment as admin
+Make author and link admin-editable, too
+save-article -> update-article (route and fns)
+Fix huge gap before lonely comment field
+Keep margin after updated comments
+Stay on baselines
 Anchor symbol for comment anchor-links
 Update page with comments from other sessions
 Validate the links

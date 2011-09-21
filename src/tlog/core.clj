@@ -202,7 +202,7 @@
   (response "OK"))
 
 (defn change-article-slug!
-  "Change the slug of an existing article."
+  "Change the slug of an existing Article."
   [params]
   (let [{{:strs [from to]} :form-params} params]
     (models/change-article-slug! from to))
@@ -210,10 +210,16 @@
   (response "OK"))
 
 (defn save-article!
-  "Save edited article. Used via Aloha editor."
+  "Update existing Article. Used via Aloha Editor."
   [params]
   (models/save-article! (params :form-params))
   (chan/send "trigger-on-slugs-change" " ")
+  (response "OK"))
+
+(defn update-comment!
+  "Update existing Comment. Used via Aloha Editor."
+  [params]
+  (models/update-comment! (params :form-params))
   (response "OK"))
 
 
@@ -266,7 +272,8 @@
   ["delete"] (wrap-params delete!)
   ["move"] (wrap-params change-article-slug!)
   ["add-article"] (wrap-params add-article!)
-  ["save-article"] (wrap-params save-article!))
+  ["save-article"] (wrap-params save-article!)
+  ["update-comment"] (wrap-params update-comment!))
 
 (defroutes get-routes
   ;; Match for root, using default range, or match given index range:

@@ -18,7 +18,7 @@ GENTICS.Aloha.Save.init = function () {
     var button = new GENTICS.Aloha.ui.Button({'label' : 'Save',
 					      'size' : 'small',
 					      'onclick' : function () {
-						  preparePostArticle();
+						  post();
 					      }
 					     });
 
@@ -31,12 +31,35 @@ GENTICS.Aloha.Save.init = function () {
     );
 };
 
-function preparePostArticle() {
+function post() {
     var activeID = GENTICS.Aloha.getActiveEditable().getId();
     var activeEditable = GENTICS.Aloha.getEditableById(activeID);
     var activeContent = activeEditable.getContents();
     var activeModified = activeEditable.isModified();
 
+    if (activeID.match(/comment-body_/)) {
+	postComment(activeID, activeEditable, activeContent, activeModified);
+    } else {
+	postArticle(activeID, activeEditable, activeContent, activeModified);
+    }
+}
+
+function postComment(activeID, activeEditable, activeContent, activeModified) {
+    // Post comment, if it has been modified:
+    if (activeModified) {
+	var commentData = {id: activeID.replace(/comment-body_/, ""),
+			   body: activeContent.replace(/<br>$/, '') // Drop traling <br>
+    			   //author: document.getElementById(authorId).value,
+    			   //link: document.getElementById(linkId).value,
+			   };
+
+	$.post('/admin/update-comment', commentData);
+    } else {
+	alert('No changes to save!');
+    }
+}
+
+function postArticle(activeID, activeEditable, activeContent, activeModified) {
     if (activeID.match(/title_/)) {
 	// The active editable contains the title, so get the body, too:
 	var otherID = activeID.replace(/title_/, "");
@@ -61,14 +84,9 @@ function preparePostArticle() {
 	var content = [otherContent, activeContent];
     }
 
-    condPostArticle(postID, content, activeModified, otherModified);
-    //alert(postID + " " + content + " " + activeModified + " " + otherModified);
-}
-
-function condPostArticle(id, content, activeModified, otherModified) {
     // Post article, if at least one of title or body have been modified:
     if (activeModified || otherModified) {
-	$.post('/admin/save-article', {id: id,
+	$.post('/admin/save-article', {id: postID,
 				       title: content[0],
 				       body: content[1]});
     } else {

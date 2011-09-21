@@ -108,7 +108,7 @@ function expandCommentForm (parentId, bodyField, bodyFieldClone, following) {
     submitButton.type = 'submit';
     submitButton.value = 'Publish';
     submitButton.disabled = 'true';
-    submitButton.onclick = function(){submit(parentId, bodyField, bodyFieldClone,
+    submitButton.onclick = function(){addComment(parentId, bodyField, bodyFieldClone,
 					     authorId, linkId, following);};
 
     // Initially hide the table and button, prepare for slideDown:
@@ -151,7 +151,7 @@ function htmlStringToNodes(string){
     return div.firstChild;
 }
 
-function submit(parentId, bodyField, bodyFieldClone, authorId, linkId, following) {
+function addComment(parentId, bodyField, bodyFieldClone, authorId, linkId, following) {
     var commentData = {parent: parentId,
     		       body: getBody(bodyField.id).replace(/<br>$/, ''), // Drop traling <br>
     		       author: document.getElementById(authorId).value,
@@ -166,12 +166,12 @@ function submit(parentId, bodyField, bodyFieldClone, authorId, linkId, following
     	       var commentDiv = bodyField.parentNode;
 	       var commentDivParent = commentDiv.parentNode;
 	       $(commentDiv).fadeOut('slow',
-				     function() {afterSubmit(commentDiv, commentDivParent,
+				     function() {afterAddComment(commentDiv, commentDivParent,
 							     commentRendition, bodyFieldClone);});
     	   });
 }
 
-function afterSubmit(commentDiv, commentDivParent, commentRendition, bodyFieldClone){
+function afterAddComment(commentDiv, commentDivParent, commentRendition, bodyFieldClone){
     commentDivParent.removeChild(commentDiv);
 
     // Add new comment followed by its reply field to the page:
@@ -183,6 +183,9 @@ function afterSubmit(commentDiv, commentDivParent, commentRendition, bodyFieldCl
     // Add back original reply field for the parent, update Aloha:
     commentDivParent.appendChild(bodyFieldClone);
     $(function() {$('.editable').aloha();});
+    if ($(newComment).find('.admin-editable').length) { // zero is false
+	$(function() {$('.admin-editable').aloha();});
+    }
 
     // If there are no comments initially, the div wrapping all comments has a CSS class 'empty'.
     // Make sure it will no longer:
