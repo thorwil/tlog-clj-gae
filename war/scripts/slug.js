@@ -76,8 +76,8 @@ function gotSlugs(Slugs){
 
     // Submit button, trigger changing the slug
     function submit() {
-	$.post("/admin/move", {from: currentSlug,
-			       to: slugInput.val()},
+	$.post("/admin/move-article", {from: currentSlug,
+				       to: slugInput.val()},
 	       function(data){location.href = '/' + slugInput.val();});
     }
 

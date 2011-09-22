@@ -172,8 +172,8 @@
   (let [a (articles-heads)]
     (assoc-delete-queued-property a :slug)))
 
-(defn change-article-slug!
-  "Change the slug pointing to a specific Article."
+(defn move-article!
+  "Delete the old SlugRel and create a new one, to change the slug of an Article."
   [from to]
   (let [id (slug->article-id from)
 	old (ds/retrieve SlugRel from)]
@@ -267,7 +267,7 @@
 (defn slug->tree
   [slug]
   (when-let [id (slug->article-id slug)]
-    (tree id)))
+    (assoc (tree id) :slug slug)))
 
 
 ;; Blobs

@@ -201,11 +201,10 @@
   (on-slugs-change!)
   (response "OK"))
 
-(defn change-article-slug!
-  "Change the slug of an existing Article."
-  [params]
-  (let [{{:strs [from to]} :form-params} params]
-    (models/change-article-slug! from to))
+(defn move-article!
+  "Change the slug of an Article."
+  [{{:strs [from to]} :form-params}]
+  (models/move-article! from to)
   (on-slugs-change!)
   (response "OK"))
 
@@ -271,7 +270,7 @@
   ["file-callback"] file-callback
   ["file_done"] file-done
   ["delete"] delete!
-  ["move"] change-article-slug!
+  ["move-article"] move-article!
   ["add-article"] add-article!
   ["save-article"] save-article!
   ["update-comment"] update-comment!)
