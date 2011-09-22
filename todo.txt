@@ -7,7 +7,6 @@ Fix Aloha blocking in some new comment fields, when adding several comments in s
 Comments
 --------
 Make author and link admin-editable, too
-save-article -> update-article (route and fns)
 Fix huge gap before lonely comment field
 Keep margin after updated comments
 Stay on baselines

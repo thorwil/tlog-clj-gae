@@ -208,10 +208,10 @@
   (on-slugs-change!)
   (response "OK"))
 
-(defn save-article!
+(defn update-article!
   "Update existing Article. Used via Aloha Editor."
   [params]
-  (models/save-article! (params :form-params))
+  (models/update-article! (params :form-params))
   (chan/send "trigger-on-slugs-change" " ")
   (response "OK"))
 
@@ -272,7 +272,7 @@
   ["delete"] delete!
   ["move-article"] move-article!
   ["add-article"] add-article!
-  ["save-article"] save-article!
+  ["update-article"] update-article!
   ["update-comment"] update-comment!)
 
 (defroutes get-routes

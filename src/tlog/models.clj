@@ -133,7 +133,7 @@
   []
   (ds/query :kind Article))
 
-(defn save-article!
+(defn update-article!
   "Save Article to datastore."
   [{:strs [title body id]}]
   (let [body-t (-> body ds/as-text)

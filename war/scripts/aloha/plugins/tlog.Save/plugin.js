@@ -86,7 +86,7 @@ function postArticle(activeID, activeEditable, activeContent, activeModified) {
 
     // Post article, if at least one of title or body have been modified:
     if (activeModified || otherModified) {
-	$.post('/admin/save-article', {id: postID,
+	$.post('/admin/update-article', {id: postID,
 				       title: content[0],
 				       body: content[1]});
     } else {
