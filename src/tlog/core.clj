@@ -256,12 +256,6 @@
   [name & more]
   `(def ~name (app ~@more)))
 
-(defmacro defroutes-wrap-param
-  "def name to routes, with handlers wrapped in wrap-params."
-  [name & more]
-  (let [more* (map #(%1 %2) (cycle [identity #(list wrap-params %)]) more)]
-    `(def ~name (app ~@more*))))
-
 (defroutes admin-get-routes
   ; Match "...file", "...file/", "...file/2-1" ...:
   ["file" &] (app [[index-range valid-blobs-range]] (file-form index-range))
@@ -273,7 +267,7 @@
   ["write" &] (article-form)  
   [&] (not-found))
 
-(defroutes-wrap-param admin-post-routes
+(defroutes admin-post-routes ;; whole form is in wrap-params, see root-routes
   ["file-callback"] file-callback
   ["file_done"] file-done
   ["delete"] delete!
@@ -296,7 +290,7 @@
 
 (defroutes root-routes
   ["admin" &] {:get admin-get-routes
-	       :post admin-post-routes}
+	       :post (wrap-params admin-post-routes)}
   [&]
   {:get get-routes
    :post post-routes})

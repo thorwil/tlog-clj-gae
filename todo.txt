@@ -17,7 +17,7 @@ Validate the links
 
 Errors
 ------
-Fix move
+Fix move (name cannot be null or empty)
 Fix tlog.Save: error getting dictionary file http://localhost:8080/scripts/aloha/plugins/tlog.Save/i18n/en.dict
 
 Cleanup
@@ -39,7 +39,7 @@ Do not try removing CSS class empty for every single comment submission
 
 Considerations
 --------------
-Consider marking times as GMT
+Consider marking times as GMT and/or specifying time past
 Consider New or Add instead of Write
 Consider dropping any pretense of IE6 support, maybe even drop html5shiv
 
