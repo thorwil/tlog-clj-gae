@@ -262,8 +262,12 @@ dl#timestamps dt {
    border-left:0.05em solid #999; /* same for ".comment .comment" */
    padding-left:1em;
 }
-#comments > div.empty {
+#comments > div.empty {;
    border-left:none;
+}
+#comments > div.empty div {
+/* Reduce gap between comment section headline and initial lonely comment field to a single line */
+   margin-top:-1.5em;
 }
 #comments > div > div:nth-last-child(2) div {
    /* Make sure gap between last 2nd level comment field and last first level comment field is one line */
