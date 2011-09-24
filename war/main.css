@@ -306,6 +306,7 @@ dl#timestamps dt {
 .branch .branch .branch .branch .branch .branch .branch .branch .branch .branch .times {
    margin-left:-23.6em!important;
 }
+
 .comment-form {
    margin-bottom:-0.1em; /* Counter-act downward drift, likely not quite accurate. */
 }
@@ -317,6 +318,7 @@ dl#timestamps dt {
    border-color:#37b;
    padding-left:0.1em;
    padding-right:0.1em;
+   margin-bottom:-0.09em!important; /* Counter-act drift */
 }
 .branch .editable {
    margin-bottom:1.5em;

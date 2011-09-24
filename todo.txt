@@ -3,12 +3,12 @@ But how?
 Make sure article content is put in <p>, to avoid <br>s
 Disable Aloha Save button until there are changes (even better: unless), look into smartContentChange
 Fix Aloha blocking in some new comment fields, when adding several comments in succession
+Stay exactly on baseline grid
 
 Comments
 --------
 Make author and link admin-editable, too
 Keep margin after updated comments
-Stay on baselines
 Anchor symbol for comment anchor-links
 Update page with comments from other sessions
 Validate the links
