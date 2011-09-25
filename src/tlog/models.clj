@@ -245,12 +245,16 @@
     (cons c (comments (Integer. (:id c))))))
 
 (defn update-comment!
-  "Update existing Comment record"
-  [{:strs [id body]}]
-  (let [body-t (-> body ds/as-text)
+  "Receive either id and body, or id, author and link in a map with string keys. Update existing Comment record."
+  [{:strs [id] :as params}]
+  (let [update* (reduce #(assoc %1 (keyword (first %2)) (second %2)) {} (vec params)) ;; string to keyword keys
+        body (:body update*)
+        update (if body ;; convert body, if included
+                 (assoc update* :body (-> body ds/as-text))
+                 update*)
 	now (System/currentTimeMillis)
 	old (ds/retrieve Comment (Integer. id))]
-    (ds/save! (assoc old :body body-t :updated now))))
+    (ds/save! (reduce into [old update {:updated now}]))))
 
 
 ;; Trees (Article and Comments)

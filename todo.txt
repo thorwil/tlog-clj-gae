@@ -7,7 +7,6 @@ Stay exactly on baseline grid
 
 Comments
 --------
-Make author and link admin-editable, too
 Keep margin after updated comments
 Anchor symbol for comment anchor-links
 Update page with comments from other sessions

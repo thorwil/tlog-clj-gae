@@ -102,32 +102,33 @@
 	  [:script {:src "/scripts/aloha/plugins/tlog.Format/plugin.js"}]
 	  [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.Table/plugin.js"}]
 	  [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.List/plugin.js"}]
+          [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.Link/plugin.js"}]
 	  aloha-save-plugin
 	  [:script
 	   "GENTICS.Aloha.settings = {
-         'plugins': {
-             'tlog.Format': {
-                  // all elements with no specific configuration get this configuration
-	          config: ['strong', 'em', 'sub', 'sup', 'ol', 'ul', 'p', 'title', 'h1', 'h2',
-                            'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat'],
-	          editables: {
-                      // no formatting allowed for title
-                      '.title': [ ]
-	          }
-	      },
-              'com.gentics.aloha.plugins.List': {
-                  config: ['ul', 'ol'],
-                  editables: {
-                      // no lists allowed for title
-		      '.title': [ ]
+               'plugins': {
+                 'tlog.Format': {
+                      // all elements with no specific configuration get this configuration
+	              config: ['strong', 'em', 'sub', 'sup', 'ol', 'ul', 'p', 'title', 'h1', 'h2',
+                               'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat'],
+	              editables: {
+                          // no formatting allowed for title
+                          '.title': [ ]
+	              }
+	          },
+                  'com.gentics.aloha.plugins.List': {
+                      config: ['ul', 'ol'],
+                      editables: {
+                          // no lists allowed for title
+		          '.title': [ ]
+                      }
                   }
-              }
-         }
-      }
-      "
+             }
+           }
+           "
 	   aloha-admin-editables
 	   "
-      $(function() {$('.editable').aloha();});"]))})
+           $(function() {$('.editable').aloha();});"]))})
 
 (def option-comments-admin-editable {:option-comments-admin-editable "admin-editable"})
 
@@ -319,7 +320,9 @@
     time-stamps
     [:p.meta
      [:a.comment-anchor {:name index :href (str "#" index)} (str "#" index " ")]
-     [:span.author (linked-or-plain link author) ": "]
+     [:span {:id (str "comment-author_" id)
+             :class (str "author " option-comments-admin-editable)}
+             (linked-or-plain link author) ": "]
      (switch-comment-deleter id delete-queued)]
     [:div {:id (str "comment-body_" id)
            :class (str "body " option-comments-admin-editable)} body]

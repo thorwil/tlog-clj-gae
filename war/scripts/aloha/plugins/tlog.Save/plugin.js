@@ -37,22 +37,43 @@ function post() {
     var activeContent = activeEditable.getContents();
     var activeModified = activeEditable.isModified();
 
-    if (activeID.match(/comment-body_/)) {
-	postComment(activeID, activeEditable, activeContent, activeModified);
-    } else {
+    if (activeID.match(/comment-author_/)) {
+	postCommentAuthor(activeID, activeEditable, activeContent, activeModified);
+    } else if (activeID.match(/comment-body_/)) {
+	postCommentBody(activeID, activeEditable, activeContent, activeModified);
+    } else { // It's an Article title or body
 	postArticle(activeID, activeEditable, activeContent, activeModified);
     }
 }
 
-function postComment(activeID, activeEditable, activeContent, activeModified) {
-    // Post comment, if it has been modified:
+function postCommentAuthor(activeID, activeEditable, activeContent, activeModified) {
+    // Post comment author and optional link, if modified:
+
+    var author = activeContent.replace(/<\/?[^>]+(>|$)|: /g, ''); // strip tags and trailing ': ' away
+
+    var s = activeContent.match(/href=\"([^\"]*)/);
+    if (s) {
+    	var link = s[1];
+    } else {
+    	var link = '';
+    }
+
+    if (activeModified) {
+	var commentData = {id: activeID.replace(/comment-author_/, ''),
+			   author: author,
+    			   link: link};
+	//alert(author + " " + link);
+	$.post('/admin/update-comment', commentData);
+    } else {
+	alert('No changes to save!');
+    }
+}
+
+function postCommentBody(activeID, activeEditable, activeContent, activeModified) {
+    // Post comment body, if modified:
     if (activeModified) {
 	var commentData = {id: activeID.replace(/comment-body_/, ""),
-			   body: activeContent.replace(/<br>$/, '') // Drop traling <br>
-    			   //author: document.getElementById(authorId).value,
-    			   //link: document.getElementById(linkId).value,
-			   };
-
+			   body: activeContent.replace(/<br>$/, '')}; // Drop traling <br>
 	$.post('/admin/update-comment', commentData);
     } else {
 	alert('No changes to save!');
@@ -62,7 +83,7 @@ function postComment(activeID, activeEditable, activeContent, activeModified) {
 function postArticle(activeID, activeEditable, activeContent, activeModified) {
     if (activeID.match(/title_/)) {
 	// The active editable contains the title, so get the body, too:
-	var otherID = activeID.replace(/title_/, "");
+	var otherID = activeID.replace(/title_/, '');
 	var postID = otherID;
 	var otherEditable = GENTICS.Aloha.getEditableById(otherID);
 	var otherContent = otherEditable.getContents();
