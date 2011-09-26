@@ -23,6 +23,24 @@
 	 (+ q 1)
 	 q))))
 
+(defn update-keys
+  "Take a function and a map. Return map with the function applied to all keys of the first level."
+  [f m]
+  (into {} (for [[k v] m] [(f k) v])))
+
+(defn keywordize
+  "Take map with string keys. Return map with keyword keys."
+  [m]
+  (update-keys keyword m))
+
+(defn update-in-if-key
+  "Take a function, map and key. If the key is in the map, pass the corresponding value through the
+   function. Return resulting map."
+  [m k f]
+  (if-let [v (m k)]
+    (update-in m [k] f) ;; A naked update-in would add the key to the map, if it wasn't present before
+    m))
+
 
 ;; Entities
 
@@ -245,16 +263,14 @@
     (cons c (comments (Integer. (:id c))))))
 
 (defn update-comment!
-  "Receive either id and body, or id, author and link in a map with string keys. Update existing Comment record."
-  [{:strs [id] :as params}]
-  (let [update* (reduce #(assoc %1 (keyword (first %2)) (second %2)) {} (vec params)) ;; string to keyword keys
-        body (:body update*)
-        update (if body ;; convert body, if included
-                 (assoc update* :body (-> body ds/as-text))
-                 update*)
-	now (System/currentTimeMillis)
+  "Receive either id and body, or id, author and link in a map with string keys. Update existing
+   Comment record."
+  [{:strs [id] :as update}]
+  (let [update (keywordize update)
+        update (update-in-if-key update :body ds/as-text)
+	now {:updated (System/currentTimeMillis)}
 	old (ds/retrieve Comment (Integer. id))]
-    (ds/save! (reduce into [old update {:updated now}]))))
+    (ds/save! (reduce into [old update now]))))
 
 
 ;; Trees (Article and Comments)
