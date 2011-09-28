@@ -7,10 +7,9 @@ Stay exactly on baseline grid
 
 Comments
 --------
-See if .replace can be used to extract comment link
-Keep margin after updated comments
-Update page with comments from other sessions
 Validate the links
+# New comments following updated ones lack margin
+# Update page with comments from other sessions
 
 Errors
 ------

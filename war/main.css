@@ -443,6 +443,10 @@ article .to-be-replied-to,
    margin-top:1.5em!important;
    margin-left:-1.05em!important;
 }
+#comments .updated > div:nth-child(3) {
+/* Make sure there is one line free below the timestamp marginalia for updated comments */
+   min-height:3em;
+}
 
 /* Counteract Ext.js CSS
    --------------------- */
