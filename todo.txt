@@ -14,8 +14,6 @@ Comments
 
 Cleanup
 -------
-hiccup.page-helpers html5
-Write macro for view options
 See if on-add-comment would be nicer written like normal views (watch out for lack of constantly)
 
 Correctness

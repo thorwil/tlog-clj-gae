@@ -1,6 +1,7 @@
 (ns tlog.views
   (:require [tlog.conf :as conf])
   (:use [clojure.java.io :only [resource]]
+        [clojure.contrib.def :only [name-with-attributes]]
 	[clojure.contrib.string :only [replace-str]]
 	[clojure.contrib.generic.functor :only [fmap]]
 	[ring.util.response :only [response content-type]]
@@ -31,13 +32,25 @@
 
 
 ;; Optional HTML parts
-;; These add key-value pairs to the map, so functions later in the pipeline can extract the results.
+;; These add key-value pairs to the map that is passed through the functions that build a view, so
+;; functions later in the pipeline can extract the results.
+
+(defmacro defopt
+  "Take name, optional doc-string, argument-list, body and optional keyname. Use name to create a
+   keyname, if none is given. Return a form that returns the body as value to the keyname in a
+   hash-map."
+  [name* & more]
+  (let [[name args*] (name-with-attributes name* more)
+        [args body] args*
+        k (or (nth args* 2 nil) (keyword name*))]
+    `(defn ~name ~args
+       {~k ~body})))
 
 (def admin-bar-item-strings
-     (array-map :list ["List" "/admin"]
-		:write ["Write" "/admin/write"]
-		:file ["File" "/admin/file"]
-		:logout ["Log out" "/logout"]))
+  (array-map :list ["List" "/admin"]
+             :write ["Write" "/admin/write"]
+             :file ["File" "/admin/file"]
+             :logout ["Log out" "/logout"]))
 
 (defhtml admin-bar-item-linked
   [[text link]]
@@ -48,7 +61,7 @@
   [:span text])
 
 (def admin-bar-defaults
-     (fmap admin-bar-item-linked admin-bar-item-strings))
+  (fmap admin-bar-item-linked admin-bar-item-strings))
 
 (defn admin-bar-items
   "Takes a key for the plain item. Returns items for the admin-bar."
@@ -56,15 +69,15 @@
   (assoc admin-bar-defaults k
 	 (admin-bar-item-plain (k admin-bar-item-strings))))
 
-(defn option-admin-bar*
+(defopt option-admin-bar*
   "Area with links for the logged in admin."
   [items]
-  {:option-admin-bar
-   (html
-    [:nav {:id "admin-bar"}
-     [:ul
-      (for [v (vals items)]
-	[:li v])]])})
+  (html
+   [:nav {:id "admin-bar"}
+    [:ul
+     (for [v (vals items)]
+       [:li v])]])
+  :option-admin-bar)
 
 (defn option-admin-bar
   ([]
@@ -72,40 +85,38 @@
   ([k]
      (option-admin-bar* (admin-bar-items k))))
 
-(defn option-slug-form
+(defopt option-slug-form
   "Mini-form to allow the admin to change the slug of an article."
   [{:keys [slug token]}]
-  {:option-slug-form
-   (html
-    [:p#slug
-     [:label "Slug"]
-     [:input {:type "text" :name "slug" :value slug :pattern "[a-zäöüß0-9_-]*"}]
-     [:input {:type "submit" :value "Move" :disabled "disabled" :style "width:15em;"}]]
-    [:script {:src "http://www.google.com/jsapi"}]
-    [:script "google.load('jquery', '1.4');"]
-    [:script {:src "/_ah/channel/jsapi"}]
-    [:script (str "channel = new goog.appengine.Channel('" token "');")]
-    [:script {:src "/scripts/slug.js"}])})
+  (html
+   [:p#slug
+    [:label "Slug"]
+    [:input {:type "text" :name "slug" :value slug :pattern "[a-zäöüß0-9_-]*"}]
+    [:input {:type "submit" :value "Move" :disabled "disabled" :style "width:15em;"}]]
+   [:script {:src "http://www.google.com/jsapi"}]
+   [:script "google.load('jquery', '1.4');"]
+   [:script {:src "/_ah/channel/jsapi"}]
+   [:script (str "channel = new goog.appengine.Channel('" token "');")]
+   [:script {:src "/scripts/slug.js"}]))
 
 (def option-aloha-admin
-     {:aloha-save-plugin
-      [:script {:src "/scripts/aloha/plugins/tlog.Save/plugin.js"}]
-      :aloha-admin-editables
-      "$(function() {$('.admin-editable').aloha();});"})
+  {:aloha-save-plugin
+   [:script {:src "/scripts/aloha/plugins/tlog.Save/plugin.js"}]
+   :aloha-admin-editables
+   "$(function() {$('.admin-editable').aloha();});"})
 
-(defn option-aloha
+(defopt option-aloha
   [{:keys [collected-scripts aloha-save-plugin aloha-admin-editables]}] 
-  {:collected-scripts
-   (cons collected-scripts
-	 (html
-	  [:script {:src "/scripts/aloha/aloha.js"}]
-	  [:script {:src "/scripts/aloha/plugins/tlog.Format/plugin.js"}]
-	  [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.Table/plugin.js"}]
-	  [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.List/plugin.js"}]
-          [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.Link/plugin.js"}]
-	  aloha-save-plugin
-	  [:script
-	   "GENTICS.Aloha.settings = {
+  (cons collected-scripts
+        (html
+         [:script {:src "/scripts/aloha/aloha.js"}]
+         [:script {:src "/scripts/aloha/plugins/tlog.Format/plugin.js"}]
+         [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.Table/plugin.js"}]
+         [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.List/plugin.js"}]
+         [:script {:src "/scripts/aloha/plugins/com.gentics.aloha.plugins.Link/plugin.js"}]
+         aloha-save-plugin
+         [:script
+          "GENTICS.Aloha.settings = {
                'plugins': {
                  'tlog.Format': {
                       // all elements with no specific configuration get this configuration
@@ -126,31 +137,32 @@
              }
            }
            "
-	   aloha-admin-editables
-	   "
-           $(function() {$('.editable').aloha();});"]))})
+          aloha-admin-editables
+          "
+           $(function() {$('.editable').aloha();});"]))
+  :collected-scripts)
 
 (def option-comments-admin-editable {:option-comments-admin-editable "admin-editable"})
 
-(defn option-comment-field
+(defopt option-comment-field
   [{:keys [collected-scripts]}]
-  {:collected-scripts
-   (cons collected-scripts
-	 (html
-	  [:script {:src "/scripts/comment.js"}]))})
+  (cons collected-scripts
+        (html
+         [:script {:src "/scripts/comment.js"}]))
+  :collected-scripts)
 
-(defn article-form-js
+(defopt article-form-js
   [{:keys [slugs token collected-scripts]}]
-  {:collected-scripts
-   (cons collected-scripts
-	 (html
-	  (let [slugs* (interpose "','" slugs)]
-	    [:script "var slugs = ['" slugs* "'];"])
-	    [:script {:type "text/javascript" :src "http://www.google.com/jsapi"}]
-	    [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
-	    [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
-	    [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" token "');")]
-	    [:script {:type "text/javascript" :src "/scripts/article.js"}]))})
+  (cons collected-scripts
+        (html
+         (let [slugs* (interpose "','" slugs)]
+           [:script "var slugs = ['" slugs* "'];"])
+         [:script {:type "text/javascript" :src "http://www.google.com/jsapi"}]
+         [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
+         [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
+         [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" token "');")]
+         [:script {:type "text/javascript" :src "/scripts/article.js"}]))
+  :collected-scripts)
 
 (def option-footer
      {:option-footer
@@ -163,17 +175,17 @@
 
 ;; Switchables
 
-(defn switch-title-linked-true
+(defopt switch-title-linked-true
   "Do wrap the title in a link, for use in the journal."
   [{:keys [id slug title]}]
-  {:switch-title-linked
-   (html [:a.article-link {:id (str "title_" id), :href (str "/" slug)} title])})
+  (html [:a.article-link {:id (str "title_" id), :href (str "/" slug)} title])
+  :switch-title-linked)
 
-(defn switch-title-linked-false
+(defopt switch-title-linked-false
   "Do not wrap the title in a link, as that link would be to where we already are."
   [{:keys [id title]}]
-  {:switch-title-linked
-   (html [:span {:id (str "title_" id), :class "admin-editable"} title])})
+  (html [:span {:id (str "title_" id), :class "admin-editable"} title])
+  :switch-title-linked)
 
 ;; on-add-comment will need this directly ...
 (def comment-deleter
