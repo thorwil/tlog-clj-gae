@@ -6,7 +6,7 @@ GENTICS.Aloha.Save = new GENTICS.Aloha.Plugin('tlog.Save');
 /**
  * Configure the available languages
  */
-GENTICS.Aloha.Save.languages = ['en'];
+// GENTICS.Aloha.Save.languages = ['en'];
 
 /**
  * Initialize the plugin and set initialize flag on true

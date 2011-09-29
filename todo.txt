@@ -7,23 +7,17 @@ Stay exactly on baseline grid
 
 Comments
 --------
-Validate the links
+# Validate the links
 # New comments following updated ones lack margin
 # Update page with comments from other sessions
-
-Errors
-------
-Fix tlog.Save: error getting dictionary file http://localhost:8080/scripts/aloha/plugins/tlog.Save/i18n/en.dict
 
 Cleanup
 -------
 See if on-add-comment would be nicer written like normal views (watch out for lack of constantly)
 Get rid of dots in Aloha floating panel
 article.js: onkeyup instead of JQuery's keyup()
-Comments: use a query in comment.js instead of onmouseover as comment field attribute
 Use table, not dl on Write form
 hiccup.page-helpers html5
-Split out repettion from slug.js and add_article.js
 Write macro for view options
 
 Correctness
