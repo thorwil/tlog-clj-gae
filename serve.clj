@@ -10,7 +10,7 @@
             [tlog.core])
   (:use [clojure.stacktrace]
         [clojure.repl :only [source]]
-        [clojure.contrib.repl-utils :only (show)]))
+        [clojure.contrib.repl-utils :only [show]]))
 
 (compile 'tlog.core)
 (in-ns 'tlog.core)
