@@ -4,6 +4,7 @@ Make sure article content is put in <p>, to avoid <br>s
 Disable Aloha Save button until there are changes (even better: unless), look into smartContentChange
 Fix Aloha blocking in some new comment fields, when adding several comments in succession
 Stay exactly on baseline grid
+Get rid of dots in Aloha floating panel
 
 Comments
 --------
@@ -13,18 +14,15 @@ Comments
 
 Cleanup
 -------
-See if on-add-comment would be nicer written like normal views (watch out for lack of constantly)
-Get rid of dots in Aloha floating panel
-article.js: onkeyup instead of JQuery's keyup()
-Use table, not dl on Write form
 hiccup.page-helpers html5
 Write macro for view options
+See if on-add-comment would be nicer written like normal views (watch out for lack of constantly)
 
 Correctness
 -----------
 Avoid collisions between slugs and fixed routes
 Rule out clashes between Comment IDs and slugs (deletion queue)
-Do not try removing CSS class empty for every single comment submission
+Do not try to remove CSS class empty for every single comment submission
 
 Considerations
 --------------

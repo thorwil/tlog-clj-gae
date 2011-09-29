@@ -77,7 +77,7 @@
   [{:keys [slug token]}]
   {:option-slug-form
    (html
-    [:p {:class "slug"}
+    [:p#slug
      [:label "Slug"]
      [:input {:type "text" :name "slug" :value slug :pattern "[a-zäöüß0-9_-]*"}]
      [:input {:type "submit" :value "Move" :disabled "disabled" :style "width:15em;"}]]
@@ -407,11 +407,13 @@
 (defhtml article-form-rendition
   [_]
   [:h2 "Write Article"]
-  [:dl
-   [:dt [:label "Title"]]
-   [:dd [:input {:type "text" :name "title" :autofocus "autofocus" :required "required"}]]
-   [:dt [:label "Slug"]]
-   [:dd [:input {:type "text" :name "slug" :required "required" :pattern "[a-zäöüß0-9_-]*"}]]]
+  [:table.form
+   [:tr
+    [:td [:label "Title"]]
+    [:td [:input {:type "text" :name "title" :autofocus "autofocus" :required "required"}]]]
+   [:tr
+    [:td [:label "Slug"]]
+    [:td [:input {:type "text" :name "slug" :required "required" :pattern "[a-zäöüß0-9_-]*"}]]]]
   [:div {:id "slug" :class "article-body hyphenate admin-editable start-blank"} ""]
   [:input {:type "submit" :value "Add new article" :disabled "disabled"}])
 

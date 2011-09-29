@@ -206,21 +206,15 @@ a.comment-anchor {
 /* Forms
    ----- */
 
-h2+dl {
-   margin-top:-0.2em;
-}
-h2+dt {
-   margin-top:-0.2em;
-}
-dl.slug {
-   margin-top:1.5em;
-}
-dt {
-   float:left;
-   min-width:3em;
+p#slug * {
+   margin-top:1.3em;
 }
 label {
    margin-right:1ex;
+}
+table.form {
+   border-collapse:collapse;
+   margin-top:-0.2em;
 }
 label:after {
    content:":";
@@ -234,12 +228,8 @@ input[type='text'] {
    border:0.05em solid #999;
 }
 input[type='submit'] {
-   margin-top:1.4em;
+   margin-top:1.5em;
    height:1.7em;
-}
-dl#timestamps dt {
-   float:left;
-   width:7em; 
 }
 .warning {
    background:#fe9;
@@ -247,7 +237,7 @@ dl#timestamps dt {
 .start-blank { /* Editables that start with no content need a frame and min-height: */
    margin-top:1.4em;
    margin-bottom:-0.125em;
-   min-height:1.4em;
+   min-height:1.5em;
    border:0.05em solid #999;
 }
 .editable {
