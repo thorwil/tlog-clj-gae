@@ -9,8 +9,7 @@
   (:require [appengine-magic.core :as ae]
             [tlog.core])
   (:use [clojure.stacktrace]
-        [clojure.repl :only [source]]
-        [clojure.contrib.repl-utils :only [show]]))
+        [clojure.repl]))
 
 (compile 'tlog.core)
 (in-ns 'tlog.core)

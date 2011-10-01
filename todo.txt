@@ -15,6 +15,7 @@ Comments
 Cleanup
 -------
 See if on-add-comment would be nicer written like normal views (watch out for lack of constantly)
+use event.target?
 
 Correctness
 -----------

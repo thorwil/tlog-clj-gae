@@ -1,15 +1,15 @@
 (ns tlog.core
   (:require [appengine-magic.core :as ae]
-	    [appengine-magic.services.user :as user]
-	    [appengine-magic.services.blobstore :as blobs]
-	    [appengine-magic.services.channel :as chan]
-	    [tlog.models :as models]
-	    [tlog.views :as views]
-	    [tlog.conf :as conf])
+            [appengine-magic.services.user :as user]
+            [appengine-magic.services.blobstore :as blobs]
+            [appengine-magic.services.channel :as chan]
+            [tlog.models :as models]
+            [tlog.views :as views]
+            [tlog.conf :as conf])
   (:use [ring.middleware.params :only [wrap-params]]
 	[ring.util.response :only [response redirect]]
 	[net.cgrand.moustache :only [app alter-response]]
-	[clojure.contrib.monads :only [with-monad m-chain domonad maybe-m]]
+	[clojure.algo.monads :only [with-monad m-chain domonad maybe-m]]
 	[clojure.string :only [split join]]
 	[appengine-magic.services.user :only [user-logged-in? user-admin?]]
 	[appengine-magic.services.datastore :only [key-id]]))
@@ -277,11 +277,11 @@
 
 (defroutes get-routes
   ;; Match for root, using default range, or match given index range:
-  [[range-or-nothing valid-articles-range-journal]] (journal range-or-nothing)
-  [[slug->tree valid-slug->tree]] (tree slug->tree)
-  [[filename valid-filename->blob-key]] (partial serve-file filename)
   ["login" &] (-> (user/login-url) redirect constantly)
   ["logout" &] (-> (user/logout-url) redirect constantly)
+  [[filename valid-filename->blob-key]] (partial serve-file filename)
+  [[range-or-nothing valid-articles-range-journal]] (journal range-or-nothing)
+  [[slug->tree valid-slug->tree]] (tree slug->tree)
   [&] (not-found))
 
 (defroutes post-routes
