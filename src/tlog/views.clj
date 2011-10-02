@@ -520,28 +520,36 @@
 	  [[] []]
 	  v))
 
-(defmacro defviews
-  "Macro for defining one view function per given vector."
-  [& vs]
+(defmacro defview
+  "Macro for defining a view. Takes a vector with a name and map with vectors per role."
+  [[name steps-per-role*]]
+  (let [;; If :everyone is not specified, default to an empty vector for it:
+        steps-per-role (into {:everyone []} steps-per-role*)]
+    `(defn ~name
+       [roles# m#]
+       (let [ss*# (flatten (map ~steps-per-role roles#))
+             ;; The constraint in web.xml should protect the admin-only routes, but fails at
+             ;; least in development mode. Deliver not-allowed, if there would be no view
+             ;; functions otherwise:
+             ss# (first (filter not-empty
+                                [ss*#
+                                 [not-allowed-rendition]]))
+             ;; Separate functions from defs:
+             [fs# ds#] (filter-split fn? ss#)]
+         ;; Compose all functions. Assemble argument map from key-value pairs
+         ;; from the defs and the view's argument map:
+         (((comp-view (cons identity fs#))) (into m# ds#))))))
+
+(defn cons-for-macro
+  "Function for buidling macros that take several vectors."
+  [macro vs]
   (cons 'do
 	(for [v vs]
-	  (let [[name steps-per-role*] v
-		;; If :everyone is not specified, default to an empty vector for it:
-		steps-per-role (into {:everyone []} steps-per-role*)]
-	    `(defn ~name
-	       [roles# m#]
-	       (let [ss*# (flatten (map ~steps-per-role roles#))
-		     ;; The constraint in web.xml should protect the admin-only routes, but fails at
-		     ;; least in development mode. Deliver not-allowed, if there would be no view
-		     ;; functions otherwise:
-		     ss# (first (filter not-empty
-					[ss*#
-					 [not-allowed-rendition]]))
-		     ;; Separate functions from defs:
-		     [fs# ds#] (filter-split fn? ss#)]
-		 ;; Compose all functions. Assemble argument map from key-value pairs
-		 ;; from the defs and the view's argument map:
-		 (((comp-view (cons identity fs#))) (into m# ds#))))))))
+          (macro v))))
+
+(defmacro defviews
+  [& vs]
+  (cons-for-macro 'defviews vs))
 
 (defviews
   ;; Visitor/admin views:
