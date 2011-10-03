@@ -484,27 +484,9 @@
 
 ;; Views taking roles into consideration
 
-(defn wrap-into
-  "Wrapper that passes on a map to the given function.
-   The result from the wrapped function is inserted/updated-within the map,
-   with :buildup as default key. A wrapped function may specifiy a different key
-   by evaluating to a map with a single key-value pair."
-  [f]
-  #(let [r (f %)]
-     (into % (if (map? r)
-	       r
-	       {:buildup r}))))
-
 (defn content-type-html
   [r]
   (content-type r "text/html"))
-
-(defn comp-view
-  "Compose functions to build a view.
-   Functions are applied right to left, thus need to be listed from outer to inner."
-  [fs]
-  (let [wfs (map wrap-into fs)]
-    #(comp constantly content-type-html response base (apply comp wfs))))
 
 (defn assoc-fn
   "Return a vector v with function f applied to the element at index i."
@@ -519,6 +501,22 @@
 		     (fn [x] (conj x %2)))
 	  [[] []]
 	  v))
+
+(defn wrap-map->map
+  "Wrap a function. The wrapper takes a map and returns a map updated with the result of the given
+  function on the argument map, using :buildup as key, if the result is not a map already."
+  [f]
+  #(let [r (f %)]
+     (into % (if (map? r)
+	       r
+	       {:buildup r}))))
+
+(defn comp-view
+  "Compose functions to build a view. Functions are applied right to left, thus need to be listed
+   from outer to inner."
+  [fs]
+  (let [wfs (map wrap-map->map fs)]
+    #(comp constantly content-type-html response base (apply comp wfs))))
 
 (defmacro defview
   "Macro for defining a view. Takes a vector with a name and map with vectors per role."
