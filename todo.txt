@@ -23,6 +23,7 @@ Avoid collisions between slugs and fixed routes
 Rule out clashes between Comment IDs and slugs (deletion queue)
 Do not try to remove CSS class empty for every single comment submission
 Check https://wiki.mozilla.org/WebAppSec/Secure_Coding_Guidelines
+Better terms than views and models
 
 Considerations
 --------------

@@ -522,12 +522,12 @@
 
 (defmacro defview
   "Macro for defining a view. Takes a vector with a name and map with vectors per role."
-  [[name steps-per-role*]]
-  (let [;; If :everyone is not specified, default to an empty vector for it:
-        steps-per-role (into {:everyone []} steps-per-role*)]
+  [[name per-role*]]
+  ;; If :everyone is not specified, default to an empty vector for it:
+  (let [per-role (into {:everyone []} per-role*)]
     `(defn ~name
        [roles# m#]
-       (let [ss*# (flatten (map ~steps-per-role roles#))
+       (let [ss*# (flatten (map ~per-role roles#))
              ;; The constraint in web.xml should protect the admin-only routes, but fails at
              ;; least in development mode. Deliver not-allowed, if there would be no view
              ;; functions otherwise:
@@ -540,16 +540,17 @@
          ;; from the defs and the view's argument map:
          (((comp-view (cons identity fs#))) (into m# ds#))))))
 
-(defn cons-for-macro
-  "Function for buidling macros that take several vectors."
-  [macro vs]
+(defn macro-for-each
+  "Take a quoted macro name and a vector. Return a do form with lists forming macro and vector element pairs."
+  [macro xs]
   (cons 'do
-	(for [v vs]
-          (macro v))))
+	(for [x xs]
+          (list macro x))))
 
 (defmacro defviews
+  "Call defview for each given vector."
   [& vs]
-  (cons-for-macro 'defviews vs))
+  (macro-for-each 'defview vs))
 
 (defviews
   ;; Visitor/admin views:
