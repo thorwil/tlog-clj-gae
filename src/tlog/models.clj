@@ -115,9 +115,7 @@
 (defn delete-queued?
   "Is there a DeletionQueueItem for the given key-string?"
   [key-string]
-  ;;(ds/exists? DeletionQueueItem key-string))
-  ;; WORKAROUND for ds/exists? throwing an exception instead of delivering false:
-  (try (ds/exists? DeletionQueueItem key-string) (catch Exception e false)))
+  (ds/exists? DeletionQueueItem key-string))
 
 (defn assoc-delete-queued-property
   "assoc whether the item is on the deletion queue."
