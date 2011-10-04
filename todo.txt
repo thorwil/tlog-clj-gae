@@ -8,13 +8,14 @@ Get rid of dots in Aloha floating panel
 
 Comments
 --------
+Fix margins before new comments / calculation of following / head class assignment on new comments
 # Validate the links
 # New comments following updated ones lack margin
 # Update page with comments from other sessions
 
 Cleanup
 -------
-See if on-add-comment would be nicer written like normal views (watch out for lack of constantly)
+mapcat in comments-rendition-recur?
 use event.target?
 
 Correctness

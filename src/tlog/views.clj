@@ -212,17 +212,12 @@
   (html [:span {:id (str "title_" id), :class "admin-editable"} title])
   :switch-title-linked)
 
-;; on-add-comment will need this directly ...
-(def comment-deleter
-  (fn [id delete-queued] (let [[class link text] (if delete-queued
-                                                   ["cancel-delete" "/admin/cancel-delete/" "Cancel deletion"]
-                                                   ["do-delete" "/admin/queue-delete/comment/" "Delete"])]
-                           (html [:a {:class (str "comment-deleter " class) :href (str link id)} text]))))
-
-;; ... but it also has to be an option for normal views, thus wrapped in a map:
 (def switch-comment-deleter-true
   {:switch-comment-deleter
-   comment-deleter})
+   (fn [id delete-queued] (let [[class link text] (if delete-queued
+                                                    ["cancel-delete" "/admin/cancel-delete/" "Cancel deletion"]
+                                                    ["do-delete" "/admin/queue-delete/comment/" "Delete"])]
+                            (html [:a {:class (str "comment-deleter " class) :href (str link id)} text])))})
 
 (def switch-comment-deleter-false
   {:switch-comment-deleter
@@ -373,27 +368,26 @@
   [:div.comment-form
    [:div {:class "hyphenate editable start-blank"
 	  :onmouseover (str "configureField(" parent ", this, " following ");")}
-    [:span.internal-label "Reply"]]])
+    [:span.internal-label following " Reply"]]])
 
 (defn comments-rendition-recur
   "Takes parent ID and a list of branches, each consisting of a comment and its children. Renders
    nested Comments."
-  [{:keys [id comments switch-comment-deleter] :as params}
-   following] ;; id refers to parent
-  (cons
-   (let [total (count comments)]
-     (map (fn [done [branch & branches]]
-            (comment-rendition (reduce into [branch
-                                             (derive-from-times branch)
-                                             (select-keys params [:option-comments-admin-editable])])
-                               (comments-rendition-recur (assoc params :id (:id branch)
-                                                                       :comments branches)
-                                                         (- total done))
-                               switch-comment-deleter))
-          (range 1 Double/POSITIVE_INFINITY) ;; effectively up to (inc total)
-          comments))
-   ;; Place comment field as a last sibling:
-   (comment-field id following)))
+  [{:keys [id comments switch-comment-deleter following] :as params}] ;; id refers to parent
+  (html (cons
+         (let [total (count comments)]
+           (map (fn [done [branch & branches]]
+                  (comment-rendition (reduce into [branch
+                                                   (derive-from-times branch)
+                                                   (select-keys params [:option-comments-admin-editable])])
+                                     (comments-rendition-recur (assoc params :id (:id branch)
+                                                                      :comments branches
+                                                                      :following (- total done)))
+                                     switch-comment-deleter))
+                (range 1 Double/POSITIVE_INFINITY) ;; effectively up to (inc total)
+                comments))
+         ;; Place comment field as a last sibling:
+         (comment-field id following))))
 
 (defhtml comments-rendition
   [{:keys [comments] :as params}]
@@ -401,7 +395,7 @@
    [:h3 "Comments"]
    [:noscript [:p "Without JavaScript, you cannot add comments, here!"]]
    [:div {:class (when (empty? comments) "empty")}
-    (comments-rendition-recur params 0)]])
+    (comments-rendition-recur (assoc params :following 0))]])
 
 (defhtml tree-rendition
   [params]
@@ -511,16 +505,32 @@
 	       r
 	       {:buildup r}))))
 
+(defn comp-view--
+  "Compose functions to build a view. Functions are applied right to left, thus need to be listed
+   from outer to inner."
+  [fs is-post]
+  (let [wrapped (map wrap-map->map fs)
+        comped (apply comp wrapped)]
+    (if is-post
+      #(comp content-type-html response comped)
+      #(comp constantly content-type-html response base comped))))
+
+(def extract-buildup (fn [{:keys [buildup]}] buildup))
+
 (defn comp-view
   "Compose functions to build a view. Functions are applied right to left, thus need to be listed
    from outer to inner."
-  [fs]
-  (let [wfs (map wrap-map->map fs)]
-    #(comp constantly content-type-html response base (apply comp wfs))))
+  [fs is-post]
+  (let [wrapped (map wrap-map->map fs)
+        shell (if is-post
+                [content-type-html response extract-buildup] ;; For a response to POST
+                [constantly content-type-html response base])] ;; For a response to GET
+    #(apply comp (concat shell wrapped))))
 
 (defmacro defview
-  "Macro for defining a view. Takes a vector with a name and map with vectors per role."
-  [[name per-role*]]
+  "Macro for defining a view. Takes a vector with a name, a map with vectors per role and an
+   optional argument, that if present, causes construction of a view for answering a POST."
+  [name per-role* & [is-post]]
   ;; If :everyone is not specified, default to an empty vector for it:
   (let [per-role (into {:everyone []} per-role*)]
     `(defn ~name
@@ -529,21 +539,19 @@
              ;; The constraint in web.xml should protect the admin-only routes, but fails at
              ;; least in development mode. Deliver not-allowed, if there would be no view
              ;; functions otherwise:
-             ss# (first (filter not-empty
-                                [ss*#
-                                 [not-allowed-rendition]]))
+             ss# (some not-empty [ss*# [not-allowed-rendition]])
              ;; Separate functions from defs:
              [fs# ds#] (filter-split fn? ss#)]
          ;; Compose all functions. Assemble argument map from key-value pairs
          ;; from the defs and the view's argument map:
-         (((comp-view (cons identity fs#))) (into m# ds#))))))
+         (((comp-view (cons identity fs#) ~is-post)) (into m# ds#))))))
 
 (defn macro-for-each
   "Take a quoted macro name and a vector. Return a do form with lists forming macro and vector element pairs."
   [macro xs]
   (cons 'do
 	(for [x xs]
-          (list macro x))))
+          `(~macro ~@x))))
 
 (defmacro defviews
   "Call defview for each given vector."
@@ -583,7 +591,13 @@
 			 option-aloha-admin
 			 article-form-js
 			 (option-admin-bar :write)
-			 option-noscript-warning]}])
+			 option-noscript-warning]}]
+  ;; POST views:
+  [on-add-comment {:everyone [comments-rendition-recur
+                              switch-comment-deleter-false]
+                   :admin [option-comments-admin-editable
+                           switch-comment-deleter-true]}
+   true])
 
 
 ;; Views independent of roles
@@ -596,22 +610,3 @@
   "Plain text, space-separated list of slugs."
   [slugs]
   (plain (interpose " " slugs)))
-
-
-;; POST views
-
-(defn on-add-comment
-  "Answer for add-comment POST handler. Return comment-rendition."
-  [roles comment* following]
-  (let [[option-comments-admin-editable* comment-deleter*] (if (some #{:admin} roles)
-                                                             [option-comments-admin-editable comment-deleter]
-                                                             [nil                            any->nil])]
-    (-> (comment-rendition (reduce into [comment*
-                                         (derive-from-times comment*)
-                                         option-comments-admin-editable*
-                                         (when (zero? following) {:head "true"})])
-                           (comment-field (:id comment*)
-                                          following)
-                           comment-deleter*)
-        response
-        content-type-html)))

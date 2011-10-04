@@ -14,6 +14,7 @@
 	[appengine-magic.services.user :only [user-logged-in? user-admin?]]
 	[appengine-magic.services.datastore :only [key-id]]))
 
+
 ;; Utility
 
 (defn roles
@@ -245,7 +246,12 @@
 (defn add-comment!
   "Handle Publish-button triggered POST for adding Comments."
   [{:keys [form-params]}]
-  (views/on-add-comment (roles) (models/add-comment! form-params) (Integer. (form-params "following"))))
+  ;; The same code used for renedering nested comments recursively is used for the single additional
+  ;; comment, too. This leads to the need for the double list construct:
+  (let [following (Integer. (form-params "following"))]
+    (views/on-add-comment (roles) (into {:comments (list (list (models/add-comment! form-params)))
+                                         :following following}
+                                        (when (zero? following) {:head true})))))
 
 
 ;; Routing
