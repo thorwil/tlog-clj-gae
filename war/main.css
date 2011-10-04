@@ -437,6 +437,9 @@ article .to-be-replied-to,
 /* Make sure there is one line free below the timestamp marginalia for updated comments */
    min-height:3em;
 }
+#comments > div > div {
+   margin-top:1.5em;
+}
 
 /* Counteract Ext.js CSS
    --------------------- */
