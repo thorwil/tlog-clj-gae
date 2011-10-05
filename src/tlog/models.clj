@@ -248,18 +248,11 @@
     (let [c* (-> c assoc-datastore-id-property unText-body)]
       (assoc-delete-queued-property c* :id))))
 
-(defn comments-for-parent-head-marked
-  [parent-id]
-  (let [cs (comments-for-parent parent-id)]
-    (if (empty? cs)
-      cs
-      (cons (assoc (first cs) :head "true") (rest cs)))))
-
 (defn comments
   "Retrieve all comments for the ID, then recurse to retrieve comments for the IDs of the just
    retrieved comments. The whole will be wrapped in ()."
   [id]
-  (for [c (comments-for-parent-head-marked id)]
+  (for [c (comments-for-parent id)]
     (cons c (comments (Integer. (:id c))))))
 
 (defn update-comment!

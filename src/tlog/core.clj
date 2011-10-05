@@ -249,9 +249,7 @@
   ;; The same code used for renedering nested comments recursively is used for the single additional
   ;; comment, too. This leads to the need for the double list construct:
   (let [following (Integer. (form-params "following"))]
-    (views/on-add-comment (roles) (into {:comments (list (list (models/add-comment! form-params)))
-                                         :following following}
-                                        (when (zero? following) {:head true})))))
+    (views/on-add-comment (roles) (assoc :comments (list (list (models/add-comment! form-params)))))))
 
 
 ;; Routing

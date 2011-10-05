@@ -343,12 +343,12 @@
     [:a {:href link} text]))
 
 (defhtml comment-rendition
-  [{:keys [id css-class head time-stamps index link author body updated delete-queued
+  [{:keys [id css-class time-stamps index link author body updated delete-queued
            option-comments-admin-editable]}
    children
    switch-comment-deleter]
   [:div {:class (str "branch" (when delete-queued " delete-queued"))}
-   [:div {:id id, :class (str "comment " css-class " index-" index (when head " head"))}
+   [:div {:id id, :class (str "comment " css-class " index-" index)}
     time-stamps
     [:p.meta
      [:a.comment-anchor {:name index :href (str "#" index)} (str "#" index " ")]
@@ -364,30 +364,28 @@
   "Takes a parent comment ID and the number of comments that follow on the same level. Renders
    Aloha editable to be placed at every end in the comment tree. Wrapped in another div that will
    collect the fields and button that may be inserted below the initial field."
-  [parent following]
+  [parent]
   [:div.comment-form
    [:div {:class "hyphenate editable start-blank"
-	  :onmouseover (str "configureField(" parent ", this, " following ");")}
-    [:span.internal-label following " Reply"]]])
+	  :onmouseover (str "configureField(" parent ", this);")}
+    [:span.internal-label "Reply"]]])
 
 (defn comments-rendition-recur
   "Takes parent ID and a list of branches, each consisting of a comment and its children. Renders
    nested Comments."
-  [{:keys [id comments switch-comment-deleter following] :as params}] ;; id refers to parent
+  [{:keys [id comments switch-comment-deleter] :as params}] ;; id refers to parent
   (html (cons
-         (let [total (count comments)]
-           (map (fn [done [branch & branches]]
-                  (comment-rendition (reduce into [branch
-                                                   (derive-from-times branch)
-                                                   (select-keys params [:option-comments-admin-editable])])
-                                     (comments-rendition-recur (assoc params :id (:id branch)
-                                                                      :comments branches
-                                                                      :following (- total done)))
-                                     switch-comment-deleter))
-                (range 1 Double/POSITIVE_INFINITY) ;; effectively up to (inc total)
-                comments))
-         ;; Place comment field as a last sibling:
-         (comment-field id following))))
+         (map (fn [done [branch & branches]]
+                (comment-rendition (reduce into [branch
+                                                 (derive-from-times branch)
+                                                 (select-keys params [:option-comments-admin-editable])])
+                                   (comments-rendition-recur (assoc params :id (:id branch)
+                                                                    :comments branches))
+                                   switch-comment-deleter))
+              (range 1 Double/POSITIVE_INFINITY) ;; effectively up to (inc total)
+              comments)
+        ;; Place comment field as a last sibling:
+        (comment-field id))))
 
 (defhtml comments-rendition
   [{:keys [comments] :as params}]
@@ -395,7 +393,7 @@
    [:h3 "Comments"]
    [:noscript [:p "Without JavaScript, you cannot add comments, here!"]]
    [:div {:class (when (empty? comments) "empty")}
-    (comments-rendition-recur (assoc params :following 0))]])
+    (comments-rendition-recur params)]])
 
 (defhtml tree-rendition
   [params]
@@ -504,16 +502,6 @@
      (into % (if (map? r)
 	       r
 	       {:buildup r}))))
-
-(defn comp-view--
-  "Compose functions to build a view. Functions are applied right to left, thus need to be listed
-   from outer to inner."
-  [fs is-post]
-  (let [wrapped (map wrap-map->map fs)
-        comped (apply comp wrapped)]
-    (if is-post
-      #(comp content-type-html response comped)
-      #(comp constantly content-type-html response base comped))))
 
 (def extract-buildup (fn [{:keys [buildup]}] buildup))
 

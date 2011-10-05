@@ -10,10 +10,6 @@
  *
  * expandCommentForm adds Author and Link fields and a submit button.
  *
- * The 'following' argument is passed from configureField through to submit. It's the number of comments
- * that follow on the same level, to be used to discern whether the new comment shall have the CSS
- * class 'head', marking the first comment for a specific parent.
- *
  * The submit POST is answered with a HTML string rendition of the comment and its reply field,
  * which replaces the comment form. The clone is used to restore the comment field for the parent. */
 
@@ -50,7 +46,7 @@ $('.cancel-delete').each(function () {
 		     });
 
 // Initially bound to each reply field's onmouseover:
-function configureField(parentId, field, following){
+function configureField(parentId, field){
     /* Cause comment-highlighting on hovering the reply field once, then rebind onmouseover for
      * future hovering: */
     var cssClass = 'to-be-replied-to';
@@ -59,17 +55,17 @@ function configureField(parentId, field, following){
     field.onmouseover = function (){$("#" + parentId).addClass(cssClass);};
 
     field.onmouseout = function (){$("#" + parentId).removeClass(cssClass);};
-    field.onclick = function (){prepareCommentForm(parentId, field, following);};
+    field.onclick = function (){prepareCommentForm(parentId, field);};
 }
 
-function prepareCommentForm(parentId, bodyField, following) {
+function prepareCommentForm(parentId, bodyField) {
     var bodyFieldClone = bodyField.parentNode.cloneNode(true);
 
     bodyField.innerHTML = '';
     bodyField.onclick = '';
 
     bodyField.onkeypress = function (){
-    	expandCommentForm(parentId, bodyField, bodyFieldClone, following);
+    	expandCommentForm(parentId, bodyField, bodyFieldClone);
     };
 }
 
@@ -82,7 +78,7 @@ function updateSubmitButton(bodyId, authorId, button){
     }
 }
 
-function expandCommentForm (parentId, bodyField, bodyFieldClone, following) {
+function expandCommentForm (parentId, bodyField, bodyFieldClone) {
     // Keep further keypresses from triggering this function:
     bodyField.onkeypress = '';
 
@@ -109,7 +105,7 @@ function expandCommentForm (parentId, bodyField, bodyFieldClone, following) {
     submitButton.value = 'Publish';
     submitButton.disabled = 'true';
     submitButton.onclick = function(){addComment(parentId, bodyField, bodyFieldClone,
-					     authorId, linkId, following);};
+					     authorId, linkId);};
 
     // Initially hide the table and button, prepare for slideDown:
     table.style.display = 'none';
@@ -129,11 +125,6 @@ function expandCommentForm (parentId, bodyField, bodyFieldClone, following) {
     // Mark the field as now being part of an expanded form:
     $(bodyField.parentNode).addClass('expanded');
 
-    // Mark the submit button if is the last element in the branch:
-    if (following == 0) {
-	$(bodyField.parentNode.lastChild).addClass('last');
-    }
-
     // dis/enable button on changes in the editable and Author field:
     var u = function(){updateSubmitButton(bodyField.id, authorId, submitButton);};
     bodyField.onkeyup = u;
@@ -151,12 +142,11 @@ function htmlStringToNodes(string){
     return div.firstChild;
 }
 
-function addComment(parentId, bodyField, bodyFieldClone, authorId, linkId, following) {
+function addComment(parentId, bodyField, bodyFieldClone, authorId, linkId) {
     var commentData = {parent: parentId,
     		       body: getBody(bodyField.id).replace(/<br>$/, ''), // Drop traling <br>
     		       author: document.getElementById(authorId).value,
-    		       link: document.getElementById(linkId).value,
-		       following: following};
+    		       link: document.getElementById(linkId).value};
 
     $.post('/comment',
     	   commentData,

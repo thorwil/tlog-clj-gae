@@ -297,6 +297,15 @@ input[type='submit'] {
    margin-left:-23.6em!important;
 }
 
+.comment {
+   margin-top:1.5em;
+}
+.branch + .branch > .comment {
+   margin-top:0;
+}
+#comments > div > div {
+   margin-top:1.5em;
+}
 .comment-form {
    margin-bottom:-0.1em; /* Counter-act downward drift, likely not quite accurate. */
 }
@@ -331,14 +340,6 @@ input[type='submit'] {
    padding-left:1em;
    border-left:0.05em solid #999;
 }
-.comment .comment .comment .head * {
-   /* Fix double line gap after first comment form on this level. */
-   margin-bottom:0!important;
-}
-#comments .comment + .head,
-#comments .comment .head {
-   padding-top:1.5em;
-}
 #comments table {
    margin-top:-0.1em; /* Gets the borders of the editable and the table cell in alignment. */
    border-spacing:0; /* Make the table tight: */
@@ -358,7 +359,7 @@ input[type='submit'] {
 }
 #comments input[type='submit'] {
    margin-top:1.2em; /* Get Submit button to be on baseline grid, as the comment table refuses to fit. */
-   margin-bottom:1.7em;
+   margin-bottom:0.15em;
    height:1.5em;
    width:100%;
    border:0.05em solid #acf;
@@ -371,9 +372,6 @@ input[type='submit'] {
    box-shadow:0 0.05em 0.05em 0.05em rgba(0,20,80,0.1);
    text-shadow:0 0.05em #fff;
    color:#048;
-}
-#comments input[type='submit'].last {
-   margin-bottom:0.2em;
 }
 #comments input[type='submit']:hover {
    background-color:#dffaff;
@@ -436,9 +434,6 @@ article .to-be-replied-to,
 #comments .updated > div:nth-child(3) {
 /* Make sure there is one line free below the timestamp marginalia for updated comments */
    min-height:3em;
-}
-#comments > div > div {
-   margin-top:1.5em;
 }
 
 /* Counteract Ext.js CSS
