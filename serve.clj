@@ -7,12 +7,12 @@
    what kind of environment it runs in (see its in-appengine-interactive-mode?), resulting in
    ae/serve being unavailabel, then."
   (:require [appengine-magic.core :as ae]
-            [tlog.core])
+            [tlog.routes.routes])
   (:use [clojure.stacktrace]
         [clojure.repl :exclude [root-cause]]))
 
-(compile 'tlog.core)
-(in-ns 'tlog.core)
+(compile 'tlog.routes.routes)
+(in-ns 'tlog.routes.routes)
 (ae/serve tlog-app)
 (println "Interactive Jetty instance started.")
 (intern 'clojure.core '*out* *out*)
