@@ -9,7 +9,6 @@ Get rid of dots in Aloha floating panel
 Comments
 --------
 # Validate the links
-# New comments following updated ones lack margin
 # Update page with comments from other sessions
 
 Cleanup

@@ -157,7 +157,7 @@ function addComment(parentId, bodyField, bodyFieldClone, authorId, linkId) {
 	       var commentDivParent = commentDiv.parentNode;
 	       $(commentDiv).fadeOut('slow',
 				     function() {afterAddComment(commentDiv, commentDivParent,
-							     commentRendition, bodyFieldClone);});
+								 commentRendition, bodyFieldClone);});
     	   });
 }
 

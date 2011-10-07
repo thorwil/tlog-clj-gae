@@ -145,5 +145,4 @@
   [{:keys [form-params]}]
   ;; The same code used for renedering nested comments recursively is used for the single additional
   ;; comment, too. This leads to the need for the double list construct:
-  (let [following (Integer. (form-params "following"))]
-    (views/on-add-comment (roles) (assoc :comments (list (list (models/add-comment! form-params)))))))
+  (views/on-add-comment (roles) {:comments (list (list (models/add-comment! form-params)))}))
