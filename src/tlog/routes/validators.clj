@@ -1,4 +1,7 @@
 (ns tlog.routes.validators
+  "Functions that return their argument unchanged, if it matches one or several predicates, or that
+   convert their argument if possible. If a predicate evaluates to false or if a conversion is not
+   possible, they return nil. To be used for URL matching."
   (:require [tlog.models :as models]
             [tlog.conf :as conf])
   (:use [clojure.algo.monads :only [with-monad m-chain domonad maybe-m]]
@@ -28,74 +31,74 @@
 
 ;; Validators
 
-(defn valid-kind
+(defn kind
   "Nil or a given valid entity name."
   [s]
   (some #{s} ["article" "blob" "comment"]))
 
-(defvalid valid-filename filename?)
+(defvalid filename filename?)
 
-(defn valid-filename->blob-key
+(defn filename->blob-key
   "Nil, unless s is in filename.extension format and maps to a blob-key, which will be returned, then."
   [s]
-  (domonad maybe-m [s* (valid-filename s)]
+  (domonad maybe-m [s* (filename s)]
 	   (models/blob-key-by-filename s*)))
 
-(defn valid->int
+(defn ->int
   "Nil, or if possible, s converted to an integer."
   [s]
   (try (Integer. s)
        (catch Exception e nil)))
 
-(defvalid valid-larger-zero #(> % 0))
+(defvalid larger-zero #(> % 0))
 
 (with-monad maybe-m
-  (def valid-nr (m-chain [valid->int
-			  valid-larger-zero])))
+  (def nr (m-chain [->int
+                    larger-zero])))
 
-(defn valid->pair
+(defn ->pair
   "Nil, or a vector with the parts of s before and after a '-'."
   [s]
   (let [ss (split s #"-")]
     (when (= 2 (count ss)) ss)))
 
-(defn valid-nr-pair [[a b]]
+(defn nr-pair [[a b]]
   (domonad maybe-m
-	   [a* (valid-nr a)
-	    b* (valid-nr b)]
+	   [a* (nr a)
+	    b* (nr b)]
 	   [a* b*]))
 
 (with-monad maybe-m
-  (def valid-items-range (m-chain [valid->pair
-				   valid-nr-pair])))
+  (def items-range (m-chain [->pair
+                             nr-pair])))
 
-(defn valid-items-range-or-default
+(defn items-range-or-default
   "default-from-to, if from-to is empty,
    from-to converted to a pair in a vector, if it maps to an article or blob index range,
    otherwise nil."
   [from-to default-from-to]
   (if (empty? from-to)
     (default-from-to)
-    (valid-items-range from-to)))
+    (items-range from-to)))
 
-(defn valid-articles-range
-  "valid-items-range-or-default specialized for articles."
+(defn articles-range
+  "items-range-or-default specialized for articles."
   [from-to-default maybe-from-to]
-  (valid-items-range-or-default maybe-from-to #(models/articles-default-range from-to-default)))
+  (items-range-or-default maybe-from-to #(models/articles-default-range from-to-default)))
 
-(defn valid-articles-range-admin
+(defn articles-range-admin
   [from-to]
-  (valid-articles-range conf/articles-per-admin-page from-to))
+  (articles-range conf/articles-per-admin-page from-to))
 
-(defn valid-articles-range-journal
+(defn articles-range-journal
   [from-to]
-  (valid-articles-range conf/articles-per-journal-page from-to))
-  
-(defn valid-blobs-range
-  "valid-items-range-or-default specialized for blobs."
+  (articles-range conf/articles-per-journal-page from-to))
+
+(defn blobs-range
+  "items-range-or-default specialized for blobs."
   [from-to]
-  (valid-items-range-or-default from-to models/blobs-default-range))
+  (items-range-or-default from-to models/blobs-default-range))
 
 (with-monad maybe-m
-  (def valid-slug->tree (m-chain [not-empty
-				  models/slug->tree])))
+  (def slug->tree (m-chain [not-empty
+                            models/slug->tree])))

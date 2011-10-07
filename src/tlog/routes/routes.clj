@@ -1,13 +1,14 @@
 (ns tlog.routes.routes
+  "Map URL patterns to handlers."
   (:require [appengine-magic.core :as ae]
-            [appengine-magic.services.user :as user])
+            [appengine-magic.services.user :as user]
+            [tlog.routes.validators :as valid])
   (:use [ring.middleware.params :only [wrap-params]]
 	[ring.util.response :only [redirect]]
 	[net.cgrand.moustache :only [app]]
 	[clojure.string :only [join]]
 	[appengine-magic.services.user :only [user-logged-in? user-admin?]]
 	[appengine-magic.services.datastore :only [key-id]]
-        tlog.routes.validators
         tlog.routes.handlers))
 
 
@@ -18,12 +19,12 @@
 
 (defroutes admin-get-routes
   ; Match "...file", "...file/", "...file/2-1" ...:
-  ["file" &] (app [[index-range valid-blobs-range]] (file-form index-range))
+  ["file" &] (app [[index-range valid/blobs-range]] (file-form index-range))
   ["generate_upload_url"] (generate-upload-url!)
-  ["queue-delete" [kind valid-kind] [identifier not-empty]] (wrap-params (partial queue-delete! kind identifier))
+  ["queue-delete" [kind valid/kind] [identifier not-empty]] (wrap-params (partial queue-delete! kind identifier))
   ["cancel-delete" [identifier not-empty]] (wrap-params (partial unqueue-delete! identifier))
   ["slugs"] (list-slugs)
-  [[from-to valid-articles-range-admin]] (list-articles from-to)
+  [[from-to valid/articles-range-admin]] (list-articles from-to)
   ["write" &] (article-form)  
   [&] (not-found))
 
@@ -40,9 +41,9 @@
   ;; Match for root, using default range, or match given index range:
   ["login" &] (-> (user/login-url) redirect constantly)
   ["logout" &] (-> (user/logout-url) redirect constantly)
-  [[filename valid-filename->blob-key]] (partial serve-file filename)
-  [[range-or-nothing valid-articles-range-journal]] (journal range-or-nothing)
-  [[slug->tree valid-slug->tree]] (tree slug->tree)
+  [[filename valid/filename->blob-key]] (partial serve-file filename)
+  [[range-or-nothing valid/articles-range-journal]] (journal range-or-nothing)
+  [[slug->tree valid/slug->tree]] (tree slug->tree)
   [&] (not-found))
 
 (defroutes post-routes
