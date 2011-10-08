@@ -1,7 +1,7 @@
 (ns tlog.routes.handlers
   (:require [appengine-magic.services.blobstore :as blobs]
             [appengine-magic.services.channel :as chan]
-            [tlog.models :as models]
+            [tlog.models.models :as models]
             [tlog.views.views :as views]
             [tlog.conf :as conf])
   (:use [ring.util.response :only [response redirect]]

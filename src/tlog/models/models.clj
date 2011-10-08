@@ -1,45 +1,10 @@
-(ns tlog.models
+(ns tlog.models.models
   (:require [appengine-magic.services.datastore :as ds]
 	    [appengine-magic.services.task-queues :as task]
-	    [tlog.conf :as conf])
+	    [tlog.conf :as conf]
+            [tlog.models.utility :as u)
   (:use [clojure.math.numeric-tower :only [abs]])
   (:import com.google.appengine.api.blobstore.BlobInfo))
-
-
-;; Utility
-
-(defmacro hash-map-syms-as-keys
-  "Create hash-map with the names of the given symbols as keys."
-  [& syms]
-  (zipmap (map (comp keyword name) syms) syms))
-
-(defn ceiling
-  ([p]
-     (ceiling p 1))
-  ([p d]
-     (let [q (quot p d)
-	   r (rem p d)]
-       (if (pos? (* r d))
-	 (+ q 1)
-	 q))))
-
-(defn update-keys
-  "Take a function and a map. Return map with the function applied to all keys of the first level."
-  [f m]
-  (into {} (for [[k v] m] [(f k) v])))
-
-(defn keywordize
-  "Take map with string keys. Return map with keyword keys."
-  [m]
-  (update-keys keyword m))
-
-(defn update-in-if-key
-  "Take a function, map and key. If the key is in the map, pass the corresponding value through the
-   function. Return resulting map."
-  [m k f]
-  (if-let [v (m k)]
-    (update-in m [k] f) ;; A naked update-in would add the key to the map, if it wasn't present before
-    m))
 
 
 ;; Entities
@@ -96,7 +61,7 @@
 			 :sort [[sort-by :dsc]])
 	items (process-fn items*)
 	[headwards tailwards] (headwards-tailwards from-to per-page total)]
-	(hash-map-syms-as-keys items headwards tailwards)))
+	(u/hash-map-syms-as-keys items headwards tailwards)))
 
 (defn default-range
   "Number range for the n last items to appear, if the url doesn't include a range."
@@ -125,7 +90,7 @@
 
 ;; Articles
 
-(defn add-article!
+(defn add-article! ;; h
   [{:strs [title slug body]}]
   (let [body-t (-> body ds/as-text)
 	now (System/currentTimeMillis)
@@ -151,7 +116,7 @@
   []
   (ds/query :kind Article))
 
-(defn update-article!
+(defn update-article! ;; h
   "Save Article to datastore."
   [{:strs [title body id]}]
   (let [body-t (-> body ds/as-text)
@@ -159,7 +124,7 @@
 	old (article (Integer. id))]
     (ds/save! (assoc old :title title :body body-t :updated now))))
 
-(defn article-slugs
+(defn article-slugs ;; h
   "List all Article slugs in use."
   []
   (map :slug (ds/query :kind SlugRel)))
@@ -190,7 +155,7 @@
   (let [a (articles-heads)]
     (assoc-delete-queued-property a :slug)))
 
-(defn move-article!
+(defn move-article! ;; h
   "Delete the old SlugRel and create a new one, to change the slug of an Article."
   [from to]
   (let [id (slug->article-id from)
@@ -218,19 +183,19 @@
 				 a))))))
 
 ;; Specialize articles-paginated* for a view including bodies:
-(def articles-paginated (partial articles-paginated* #(unText-body %)))
+(def articles-paginated (partial articles-paginated* #(unText-body %))) ;; h
 
 ;; Specialize articles-paginated* for just listing deletion-queue, title, link:
-(def articles-heads-paginated (partial articles-paginated* #(select-keys % [:slug :title])))
+(def articles-heads-paginated (partial articles-paginated* #(select-keys % [:slug :title]))) ;; h
 
-(defn articles-default-range [n]
+(defn articles-default-range [n] ;; v
   "Article number range for the n last items to appear, if the url doesn't include a range."
   (default-range Article n))
 
 
 ;; Comments
 
-(defn add-comment!
+(defn add-comment! ;; h
   "Save new comment to datastore. Return comment map with datastore ID included."
   [{:strs [article-id parent author link body]}]
   (let [parent* (Integer. parent)
@@ -255,12 +220,12 @@
   (for [c (comments-for-parent id)]
     (cons c (comments (Integer. (:id c))))))
 
-(defn update-comment!
+(defn update-comment! ;; h
   "Receive either id and body, or id, author and link in a map with string keys. Update existing
    Comment record."
   [{:strs [id] :as update}]
-  (let [update (keywordize update)
-        update (update-in-if-key update :body ds/as-text)
+  (let [update (u/keywordize update)
+        update (u/update-in-if-key update :body ds/as-text)
 	now {:updated (System/currentTimeMillis)}
 	old (ds/retrieve Comment (Integer. id))]
     (ds/save! (reduce into [old update now]))))
@@ -277,7 +242,7 @@
       nil
       (assoc a :comments cs))))
 
-(defn slug->tree
+(defn slug->tree ;; v
   [slug]
   (when-let [id (slug->article-id slug)]
     (assoc (tree id) :slug slug)))
@@ -285,7 +250,7 @@
 
 ;; Blobs
 
-(defn blob-key-by-filename
+(defn blob-key-by-filename ;; v
   [name]
   (-> (ds/query :kind "__BlobInfo__" :filter (= :filename name)) first :blob-key))
 
@@ -305,7 +270,7 @@
   "Maps of Blob properties plus whether a Blob is on the deletion queue."
   (assoc-delete-queued-property (blobs-heads) :filename))
 
-(defn blobs-paginated
+(defn blobs-paginated ;; h
   "Retrieve a range of Blobs. Add data for page navigation."
   [from-to]
   (items-paginated "__BlobInfo__"
@@ -314,14 +279,14 @@
 		   #(for [b %]
 		      (assoc-delete-queued-property b :filename))))
 
-(defn blobs-default-range []
+(defn blobs-default-range [] ;; v
   "Blob number range for the n last items to appear, if the url doesn't include a range."
   (default-range "__BlobInfo__" conf/blobs-per-page))
 
 
 ;; Deletion queue functions for Articles, Blobs and Comments
 
-(defn queue-delete!
+(defn queue-delete! ;; h
   "Takes kind and identifier as strings. Adds item id to queue for delayed, cancel-able deletion."
   [kind identifier]
   (task/add! :url "/admin/delete"
@@ -337,7 +302,7 @@
      (ds/delete! x#)
      ~@more))
 
-(defn unqueue-delete!
+(defn unqueue-delete! ;; h
   "Cancel delayed deletion by deleting the DeletionQueueItem belonging to the key."
   [identifier]
   (when-delete (ds/retrieve DeletionQueueItem identifier)))
@@ -370,7 +335,7 @@
                       "blob" delete-blob!
                       "comment" delete-comment!})
 
-(defn delete!
+(defn delete! ;; h
   [kind identifier]
   (when-let [d (ds/retrieve DeletionQueueItem identifier)]
     (ds/delete! d)
