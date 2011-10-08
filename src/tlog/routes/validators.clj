@@ -2,7 +2,7 @@
   "Functions that return their argument unchanged, if it matches one or several predicates, or that
    convert their argument if possible. If a predicate evaluates to false or if a conversion is not
    possible, they return nil. To be used for URL matching."
-  (:require [tlog.models :as models]
+  (:require [tlog.models.for_validators :as models]
             [tlog.conf :as conf])
   (:use [clojure.algo.monads :only [with-monad m-chain domonad maybe-m]]
 	[clojure.string :only [split]]))

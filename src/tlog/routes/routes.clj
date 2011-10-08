@@ -29,7 +29,7 @@
   ["slugs"] (h/list-slugs)
   [[from-to valid/articles-range-admin]] (h/list-articles from-to)
   ["write" &] (h/article-form)
-  [&] (not-found))
+  [&] (h/not-found))
 
 (defroutes admin-post-routes ;; whole form is in wrap-params, see root-routes
   ["file-callback"] h/file-callback
