@@ -53,6 +53,8 @@
   ["comment"] (wrap-params h/add-comment!))
 
 (defroutes root-routes
+  ;; Note that slugs in handlers.clj manually includes fixed route fragments like "admin" to assist
+  ;; in avoiding collisions.
   ["admin" &] {:get admin-get-routes
 	       :post (wrap-params admin-post-routes)}
   [&]

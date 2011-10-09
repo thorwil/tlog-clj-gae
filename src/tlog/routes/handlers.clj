@@ -10,18 +10,21 @@
 	[appengine-magic.services.user :only [user-logged-in? user-admin?]]))
 
 
-(defn roles
+(defn- roles
   "Return list of roles of the current user as keys."
   []
   (cons :everyone
 	(when (and (user-logged-in?) (user-admin?)) [:admin])))
 
+(defn- slugs
+  []
+  (conj (models/article-slugs) "admin" "login" "logout" "comment"))
 
 ;; Event handlers
 
 (defn on-slugs-change!
   []
-  (chan/send "trigger-on-slugs-change" (join " " (models/article-slugs))))
+  (chan/send "trigger-on-slugs-change" (join " " (slugs))))
 
 
 ;; Admin GET Handlers
@@ -52,7 +55,7 @@
 (defn list-slugs
   "Plain text, space-separated list of slugs."
   []
-  (views/list-slugs (models/article-slugs)))
+  (views/list-slugs (slugs)))
 
 (defn list-articles
   [from-to]
@@ -63,7 +66,7 @@
   []
   (views/article-form (roles) {:title "Write"
 			       :token (chan/create-channel "trigger-on-slugs-change")
-			       :slugs (models/article-slugs)}))
+			       :slugs (slugs)}))
 
 ;; Admin/Visitor GET handlers
 

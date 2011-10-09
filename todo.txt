@@ -1,24 +1,5 @@
-But how?
---------
-Make sure article content is put in <p>, to avoid <br>s
-Disable Aloha Save button until there are changes (even better: unless), look into smartContentChange
-Fix Aloha blocking in some new comment fields, when adding several comments in succession
-Stay exactly on baseline grid
-Get rid of dots in Aloha floating panel
-
-Comments
---------
-# Validate the links
-# Update page with comments from other sessions
-
-Cleanup
--------
-mapcat in comments-rendition-recur?
-use event.target?
-
 Correctness
 -----------
-Avoid collisions between slugs and fixed routes
 Rule out clashes between Comment IDs and slugs (deletion queue)
 Do not try to remove CSS class empty for every single comment submission
 Check https://wiki.mozilla.org/WebAppSec/Secure_Coding_Guidelines
@@ -45,7 +26,7 @@ Pages as sequences of blocks
 
 Testing
 -------
-Write tests
+Write tests ...
 Validate HTML, CSS
 Cross-Browser
 
@@ -54,3 +35,17 @@ Optimization
 Memchache/memoization
 Minify JS and CSS
 Etags?
+
+# But how?
+--------
+Make sure article content is put in <p>, to avoid <br>s
+Disable Aloha Save button until there are changes (even better: unless), look into smartContentChange
+Fix Aloha blocking in some new comment fields, when adding several comments in succession
+Stay exactly on baseline grid
+Get rid of dots in Aloha floating panel
+Automatically avoid collisions between article slugs and fixed routes
+
+Comments
+--------
+# Validate the links
+# Update page with comments from other sessions
