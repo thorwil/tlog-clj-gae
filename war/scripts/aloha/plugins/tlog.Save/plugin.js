@@ -24,10 +24,10 @@ GENTICS.Aloha.Save.init = function () {
 
     // Add it to the floating menu
     GENTICS.Aloha.FloatingMenu.addButton(
-      'GENTICS.Aloha.continuoustext',
-      button,
-      GENTICS.Aloha.i18n(GENTICS.Aloha, 'floatingmenu.tab.format'),
-      4
+	'GENTICS.Aloha.continuoustext',
+	button,
+	GENTICS.Aloha.i18n(GENTICS.Aloha, 'floatingmenu.tab.format'),
+	4
     );
 };
 
@@ -108,8 +108,8 @@ function postArticle(activeID, activeEditable, activeContent, activeModified) {
     // Post article, if at least one of title or body have been modified:
     if (activeModified || otherModified) {
 	$.post('/admin/update-article', {id: postID,
-				       title: content[0],
-				       body: content[1]});
+					 title: content[0],
+					 body: content[1]});
     } else {
 	alert('No changes to save!');
     }
