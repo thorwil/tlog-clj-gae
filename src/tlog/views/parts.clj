@@ -138,6 +138,14 @@
          [:script {:type "text/javascript" :src "/scripts/article.js"}]))
   :collected-scripts)
 
+(defopt option-time-offset
+  [{:keys [collected-scripts]}]
+    (cons collected-scripts
+          (html
+           [:script "var serverNow = " (System/currentTimeMillis) ";"]
+           [:script {:src "/scripts/time.js"}]))
+  :collected-scripts)
+
 (def option-footer
      {:option-footer
       (html [:footer [:p conf/footer]])})
@@ -246,23 +254,23 @@
   (when (or headwards tailwards)
     (page-navigation [headwards tailwards] url-base)))
 
+;; Timestamps get converted from UTC to local time via time.js, which has to rebuild the HTML
 (defhtml time*
   [t attr-map]
   [:time (into {:datetime (ms-to-datetime t)} attr-map) (ms-to-day-time t)])
 
 (defhtml time-created
   [t]
-  [:p (time* t {:pubdate "pubdate"})])
+  [:p (time* t {:pubdate "pubdate" :class "time-created" :id t})])
 
 (defhtml time-updated
   [t]
-  [:p "Updated:" [:br] (time* t {})])
+  [:p "Updated:" [:br] (time* t {:class "time-updated" :id t})])
 
 (defn derive-from-times
-  "Derive everything that depends on whether there has been an update.
-   Thus prepare for only showing time of update, if one happened,
-   and for setting CSS classes accordingly.
-   Required before article-rendition."
+  "Derive everything that depends on whether there has been an update. Thus prepare for only showing
+   time of update, if one happened, and for setting CSS classes accordingly. Required before
+   article-rendition."
   [{:keys [created updated]}]
   (let [[maybe-updated css-class] (if (= created updated)
 				    [nil "not-updated"]

@@ -1,15 +1,6 @@
-Correctness
------------
-Rule out clashes between Comment IDs and slugs (deletion queue)
-Do not try to remove CSS class empty for every single comment submission
-Check https://wiki.mozilla.org/WebAppSec/Secure_Coding_Guidelines
-Better terms than views and models
-
-Considerations
---------------
-Consider marking times as GMT and/or specifying time past
+Fix syntax error on editing article
+Offset updated times
 Consider New or Add instead of Write
-Consider dropping any pretense of IE6 support, maybe even drop html5shiv
 
 Features
 --------
@@ -34,7 +25,10 @@ Optimization
 ------------
 Memchache/memoization
 Minify JS and CSS
+Try to load less JS
 Etags?
+Do something about older IEs lacking getElementsByClassName, used in time.js
+Do not try to remove CSS class empty for every single comment submission
 
 # But how?
 --------

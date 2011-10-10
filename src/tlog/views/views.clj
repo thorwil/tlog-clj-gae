@@ -9,6 +9,7 @@
 (defviews
   ;; Visitor/admin views:
   [journal {:everyone [journal-rendition
+                       option-time-offset
   		       option-footer]
   	    :admin [option-aloha
 		    option-aloha-admin
