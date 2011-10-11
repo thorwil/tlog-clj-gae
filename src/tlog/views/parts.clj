@@ -59,20 +59,6 @@
   ([k]
      (option-admin-bar* (admin-bar-items k))))
 
-(defopt option-slug-form
-  "Mini-form to allow the admin to change the slug of an article."
-  [{:keys [slug token]}]
-  (html
-   [:p#slug
-    [:label "Slug"]
-    [:input {:type "text" :name "slug" :value slug :pattern "[a-zäöüß0-9_-]*"}]
-    [:input {:type "submit" :value "Move" :disabled "disabled" :style "width:15em;"}]]
-   [:script {:src "http://www.google.com/jsapi"}]
-   [:script "google.load('jquery', '1.4');"]
-   [:script {:src "/_ah/channel/jsapi"}]
-   [:script (str "channel = new goog.appengine.Channel('" token "');")]
-   [:script {:src "/scripts/slug.js"}]))
-
 (def option-aloha-admin
   {:aloha-save-plugin
    [:script {:src "/scripts/aloha/plugins/tlog.Save/plugin.js"}]
@@ -118,25 +104,39 @@
 
 (def option-comments-admin-editable {:option-comments-admin-editable "admin-editable"})
 
-(defopt option-comment-field
+(defopt option-comment-js
   [{:keys [collected-scripts]}]
   (cons collected-scripts
         (html
          [:script {:src "/scripts/comment.js"}]))
   :collected-scripts)
 
-(defopt article-form-js
-  [{:keys [slugs token collected-scripts]}]
+(defmacro slug-channel-js
+  [slugs token script-src]
+  `(html
+    (let [slugs# (interpose "','" ~slugs)]
+      [:script "var slugs = ['" slugs# "'];"])
+    [:script {:type "text/javascript" :src "http://www.google.com/jsapi"}]
+    [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
+    [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
+    [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" ~token "');")]
+    [:script {:type "text/javascript" :src ~script-src}]))
+
+(defopt option-article-js
+  [{:keys [collected-scripts slugs token]}]
   (cons collected-scripts
-        (html
-         (let [slugs* (interpose "','" slugs)]
-           [:script "var slugs = ['" slugs* "'];"])
-         [:script {:type "text/javascript" :src "http://www.google.com/jsapi"}]
-         [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
-         [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
-         [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" token "');")]
-         [:script {:type "text/javascript" :src "/scripts/article.js"}]))
+        (slug-channel-js slugs token "/scripts/article.js"))
   :collected-scripts)
+
+(defopt option-slug-form
+  "Mini-form to allow the admin to change the slug of an article."
+  [{:keys [slugs slug token]}]
+  (concat (html
+           [:p#slug
+            [:label "Slug"]
+            [:input {:type "text" :name "slug" :value slug :pattern "[a-zäöüß0-9_-]*"}]
+            [:input {:type "submit" :value "Move" :disabled "disabled" :style "width:15em;"}]])
+          (slug-channel-js slugs token "/scripts/slug.js")))
 
 (defopt option-time-offset
   [{:keys [collected-scripts]}]

@@ -1,15 +1,20 @@
 "use strict";
 
-/* Open a channel to receive an updated list of slugs in use.
- Compare current slug field value to switch between "Move" and "Overwrite"
- text on the submit button. Also change slug field background color.
+/* To be defined prior to referencing this file:
+ * - channel = new goog.appengine.Channel('token'); with custom token
+ * - var slugs as array of slugs in use;
+ *
+ * Open a channel with the token to receive updates on the slugs in use.
+ *
+ * Compare current slug field value to enable/disable the 'Move' button.
+ * Also change slug field background color accordingly.
+ *
+ * Actions on key input: Reject invalid chars.
+*/
 
- Actions on key input:
- - Reject invalid chars.
- - Enable submit button if all 3 fields are filled, else make sure it's disabled. */
-
-// To be defined prior to referencing this file:
-// channel = new goog.appengine.Channel('token');
+function setSlugs(message){
+    slugs = message.split(" ");
+}
 
 var titleInput = $('[name="title"]');
 var slugInput = $('[name="slug"]');
@@ -17,75 +22,60 @@ var textArea = $('[name="body"]');
 var submitButton = $('[type="submit"]');
 
 var currentSlug = slugInput.val();
+var SubmitDefaultValue = submitButton.val();
 
-function getSlugs(){
-    $.ajax({type: 'GET',
-	    url: "/admin/slugs",
-	    success: function(data){
-		var Slugs = data.split(" ");
-		gotSlugs(Slugs);
-	    },
-	    error: function(){
-		function(){$('body').prepend('<p>Failed to get slugs</p>');};
-	    }
-	   });
+function convertToSlug(text){
+    return text
+        .toLowerCase()
+        .replace(/ /g,'_')
+        .replace(/_+/g,'_')
+        .replace(/[^\w-]+/g,'');
 }
 
-// The following is only called once a channel and Slugs exists.
-function gotSlugs(Slugs){
-    function convertToSlug(Text){
-	return Text
-            .toLowerCase()
-            .replace(/ /g,'_')
-            .replace(/_+/g,'_')
-            .replace(/[^\w-]+/g,'');
+function updateMoveButton(slug){
+    if (slugInput.val() != ''){
+	// .disabled only works with [0], whereas .val only works without!?
+	submitButton[0].disabled = false;
+    }
+    else {
+	submitButton[0].disabled = true;
     }
 
-    function updateSubmitButton(Slug){
-	if (slugInput.val() != ''){
-	    // .disabled only works with [0], whereas .val only works without!?
-	    submitButton[0].disabled = false;
-	}
-	else {
-	    submitButton[0].disabled = true;
-	}
-
-	if (jQuery.inArray(Slug, Slugs) > -1) {
-            // slug in use, warn
-            slugInput.addClass('warning');
-            submitButton.val("Can't overwrite existing Article");
-	    submitButton[0].disabled = true;
-        }
-        else {
-            // slug not in use
-            slugInput.removeClass('warning');
-            submitButton.val(SubmitDefaultValue);
-        }
+    if (jQuery.inArray(slug, slugs) > -1) {
+        // slug in use, warn
+        slugInput.addClass('warning');
+        submitButton.val("Can't overwrite existing Article");
+	submitButton[0].disabled = true;
     }
-
-    function rejectInvalidChars(o, regexp){
-	o.value = o.value.replace(regexp, '');
+    else {
+        // slug not in use
+        slugInput.removeClass('warning');
+        submitButton.val(SubmitDefaultValue);
     }
-
-    var SubmitDefaultValue = submitButton.val();
-
-    slugInput.keyup(function(){
-			updateSubmitButton($(this).val());
-			return rejectInvalidChars(this, /[^a-zäöüß0-9_\-]/);
-		    });
-
-    // Submit button, trigger changing the slug
-    function submit() {
-	$.post("/admin/move-article", {from: currentSlug,
-				       to: slugInput.val()},
-	       function(data){location.href = '/' + slugInput.val();});
-    }
-
-    submitButton[0].onclick = function() { submit(); };
 }
+
+function rejectInvalidChars(o, regexp){
+    o.value = o.value.replace(regexp, '');
+}
+
+slugInput.keyup(function(){
+		    updateMoveButton($(this).val());
+		    return rejectInvalidChars(this, /[^a-zäöüß0-9_\-]/);
+		});
+
+
+// Submit button, trigger changing the slug
+function submit() {
+    $.post("/admin/move-article", {from: currentSlug,
+				   to: slugInput.val()},
+	   function(data){location.href = '/' + slugInput.val();});
+}
+
+submitButton[0].onclick = function() { submit(); };
+
 
 var socket = channel.open();
-socket.onopen = function(){getSlugs();};
-socket.onmessage = function(){getSlugs();};
+// socket.onopen = function(){};
+socket.onmessage = function(m){setSlugs(m.data);};
 socket.onerror = function(){$('body').prepend('<p>Channel error, please reload.</p>');};
 socket.onclose = function(){$('body').prepend('<p>Channel closed, please reload.</p>');};

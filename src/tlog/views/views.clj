@@ -15,10 +15,11 @@
 		    option-aloha-admin
   		    (option-admin-bar)]}]
   [tree {:everyone [tree-rendition
+                    option-time-offset
                     switch-comment-deleter-false
 		    switch-title-linked-false
 		    option-footer
-		    option-comment-field
+		    option-comment-js
 		    option-aloha]
 	 :admin [option-comments-admin-editable
                  option-aloha-admin
@@ -38,7 +39,7 @@
   [article-form {:admin [article-form-rendition
 			 option-aloha
 			 option-aloha-admin
-			 article-form-js
+			 option-article-js
 			 (option-admin-bar :write)
 			 option-noscript-warning]}]
   ;; POST views:

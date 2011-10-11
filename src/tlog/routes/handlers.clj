@@ -52,11 +52,6 @@
   (models/unqueue-delete! identifier)
   (redirect (headers "referer")))
 
-(defn list-slugs
-  "Plain text, space-separated list of slugs."
-  []
-  (views/list-slugs (slugs)))
-
 (defn list-articles
   [from-to]
   (views/admin (roles)
@@ -133,7 +128,8 @@
 (defn tree
   "Article with (nested) Comments."
   [slug->tree]
-  (views/tree (roles) (assoc slug->tree :token (chan/create-channel "trigger-on-slugs-change"))))
+  (views/tree (roles) (assoc slug->tree :token (chan/create-channel "trigger-on-slugs-change")
+                                        :slugs (slugs))))
 
 (defn serve-file
   "Take a __BlobInfo__ key and request, serve file from blobstore."

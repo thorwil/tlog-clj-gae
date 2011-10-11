@@ -26,7 +26,6 @@
                                                                                   identifier))
   ["cancel-delete" [identifier not-empty]] (wrap-params (partial h/unqueue-delete!
                                                                  identifier))
-  ["slugs"] (h/list-slugs)
   [[from-to valid/articles-range-admin]] (h/list-articles from-to)
   ["write" &] (h/article-form)
   [&] (h/not-found))
