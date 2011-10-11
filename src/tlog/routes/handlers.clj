@@ -113,7 +113,7 @@
   "Update existing Article. Used via Aloha Editor."
   [params]
   (models/update-article! (params :form-params))
-  (chan/send "trigger-on-slugs-change" " ")
+  (on-slugs-change!)
   (response "OK"))
 
 (defn update-comment!

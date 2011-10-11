@@ -1,5 +1,3 @@
-Fix syntax error on editing article
-Offset updated times
 Consider New or Add instead of Write
 
 Features
