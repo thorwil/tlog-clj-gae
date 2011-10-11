@@ -1,14 +1,13 @@
-Consider New or Add instead of Write
-
 Features
 --------
+Tags
+Series
+RSS
+Channels
+Pingbacks
 G-channel update blob list
 G-channel update admin article list
 Handle delete/cancel-delete asynchronously
-Channels
-Tags
-RSS
-Pingbacks
 Thumbnails
 Blog-wide search
 Pages as sequences of blocks

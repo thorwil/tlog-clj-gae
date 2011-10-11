@@ -111,16 +111,16 @@
          [:script {:src "/scripts/comment.js"}]))
   :collected-scripts)
 
-(defmacro slug-channel-js
-  [slugs token script-src]
-  `(html
-    (let [slugs# (interpose "','" ~slugs)]
-      [:script "var slugs = ['" slugs# "'];"])
+(defn slug-channel-js
+  [slugs* token script-src]
+  (html
+    (let [slugs (interpose "','" slugs*)]
+      [:script "var slugs = ['" slugs "'];"])
     [:script {:type "text/javascript" :src "http://www.google.com/jsapi"}]
     [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
     [:script {:type "text/javascript" :src "/_ah/channel/jsapi"}]
-    [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" ~token "');")]
-    [:script {:type "text/javascript" :src ~script-src}]))
+    [:script {:type "text/javascript"} (str "channel = new goog.appengine.Channel('" token "');")]
+    [:script {:type "text/javascript" :src script-src}]))
 
 (defopt option-article-js
   [{:keys [collected-scripts slugs token]}]
