@@ -2,7 +2,7 @@
   (:use [clojure.java.io :only [resource]]
 	[ring.util.response :only [response content-type]]
         tlog.views.utility
-        tlog.views.parts))
+        [tlog.views.parts :only [base]]))
 
 (defn content-type-html
   [r]
@@ -36,17 +36,19 @@
 (defn comp-view
   "Compose functions to build a view. Functions are applied right to left, thus need to be listed
    from outer to inner."
-  [fs is-post]
+  [fs shell*]
   (let [wrapped (map wrap-map->map fs)
-        shell (if is-post
-                [content-type-html response extract-buildup] ;; For a response to POST
-                [constantly content-type-html response base])] ;; For a response to GET
+        shell (case shell*
+                ;; For finalizing responses to a POST, to deliver a feed, or response to a GET (default):
+                :on-post [content-type-html response extract-buildup]
+                :atom-feed [constantly response extract-buildup]
+                [constantly content-type-html response base])]
     #(apply comp (concat shell wrapped))))
 
 (defmacro defview
   "Macro for defining a view. Takes a vector with a name, a map with vectors per role and an
    optional argument, that if present, causes construction of a view for answering a POST."
-  [name per-role* & [is-post]]
+  [name per-role* & [shell]]
   ;; If :everyone is not specified, default to an empty vector for it:
   (let [per-role (into {:everyone []} per-role*)]
     `(defn ~name
@@ -60,7 +62,7 @@
              [fs# ds#] (filter-split fn? ss#)]
          ;; Compose all functions. Assemble argument map from key-value pairs
          ;; from the defs and the view's argument map:
-         (((comp-view (cons identity fs#) ~is-post)) (into m# ds#))))))
+         (((comp-view (cons identity fs#) ~shell)) (into m# ds#))))))
 
 (defn macro-for-each
   "Take a quoted macro name and a vector. Return a do form with lists forming macro and vector element pairs."

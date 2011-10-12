@@ -41,10 +41,10 @@
     (ds/delete! old)
     (ds/save! (b/SlugRel. to id))))
 
-;; Specialize articles-paginated* for a view including bodies:
+;; Specialize b/articles-paginated* for a view including bodies:
 (def articles-paginated (partial b/articles-paginated* #(b/unText-body %)))
 
-;; Specialize articles-paginated* for just listing deletion-queue, title, link:
+;; Specialize b/articles-paginated* for just listing deletion-queue, title, link:
 (def articles-heads-paginated (partial b/articles-paginated* #(select-keys % [:slug :title])))
 
 

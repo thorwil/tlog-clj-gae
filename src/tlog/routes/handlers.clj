@@ -7,8 +7,11 @@
   (:use [ring.util.response :only [response redirect]]
 	[net.cgrand.moustache :only [alter-response]]
 	[clojure.string :only [join]]
-	[appengine-magic.services.user :only [user-logged-in? user-admin?]]))
+	[appengine-magic.services.user :only [user-logged-in? user-admin?]]
+        [tlog.models.for_validators :only [articles-default-range]]))
 
+
+;; Utility
 
 (defn- roles
   "Return list of roles of the current user as keys."
@@ -19,6 +22,7 @@
 (defn- slugs
   []
   (conj (models/article-slugs) "admin" "login" "logout" "comment"))
+
 
 ;; Event handlers
 
@@ -62,13 +66,6 @@
   (views/article-form (roles) {:title "Write"
 			       :token (chan/create-channel "trigger-on-slugs-change")
 			       :slugs (slugs)}))
-
-;; Admin/Visitor GET handlers
-
-(defn not-found
-  []
-  (-> (views/not-found (roles) {:title "Not found"})
-      (alter-response #(assoc % :status 404))))
 
 
 ;; Admin POST handlers
@@ -118,26 +115,35 @@
   (response "OK"))
 
 
-;; Visitor GET handlers
+;; Visitor/Admin GET handlers
 
 (defn journal
   "List of Articles with full bodies."
-  [range-or-nothing]
-  (views/journal (roles) (models/articles-paginated range-or-nothing conf/articles-per-journal-page)))
+  [from-to]
+  (views/journal (roles) (models/articles-paginated from-to conf/articles-per-journal-page)))
 
 (defn tree
   "Article with (nested) Comments."
   [slug->tree]
   (views/tree (roles) (assoc slug->tree :token (chan/create-channel "trigger-on-slugs-change")
                                         :slugs (slugs))))
-
 (defn serve-file
   "Take a __BlobInfo__ key and request, serve file from blobstore."
   [key request]
   (blobs/serve request key))
 
+(defn not-found
+  []
+  (-> (views/not-found (roles) {:title "Not found"})
+      (alter-response #(assoc % :status 404))))
 
-;; Visitor POST handlers
+(defn atom-feed
+  []
+  (views/atom-feed (roles) (models/articles-paginated (articles-default-range conf/articles-per-feed-page)
+                                                      conf/articles-per-journal-page)))
+
+
+;; Visitor/Admin POST handlers
 
 (defn add-comment!
   "Handle Publish-button triggered POST for adding Comments."

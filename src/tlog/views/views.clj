@@ -1,12 +1,14 @@
 (ns tlog.views.views
   (:use [ring.util.response :only [response]]
         tlog.views.parts
+        tlog.views.atom-feed
         [tlog.views.compose :only [defview defviews]]))
 
 
-;; Views taking roles into consideration
-
 (defviews
+  ;; Views with no admin specific parts:
+  [atom-feed {:everyone [stub]}
+             :atom-feed]
   ;; Visitor/admin views:
   [journal {:everyone [journal-rendition
                        option-time-offset
@@ -47,16 +49,11 @@
                               switch-comment-deleter-false]
                    :admin [option-comments-admin-editable
                            switch-comment-deleter-true]}
-   true])
+                  :on-post])
 
 
-;; Views independent of roles
+;; Special views
 
 (defn plain
-  [s]
-  ((comp constantly response) s))
-
-(defn list-slugs
-  "Plain text, space-separated list of slugs."
-  [slugs]
-  (plain (interpose " " slugs)))
+[s]
+((comp constantly response) s))

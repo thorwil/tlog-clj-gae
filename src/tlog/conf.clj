@@ -5,6 +5,7 @@
 
 (def articles-per-journal-page 3)
 (def articles-per-admin-page 5)
+(def articles-per-feed-page 10)
 (def blobs-per-page 3)
 
 

@@ -43,6 +43,7 @@
   ;; Match for root, using default range, or match given index range:
   ["login" &] (-> (user/login-url) redirect constantly)
   ["logout" &] (-> (user/logout-url) redirect constantly)
+  ["atom" &] (h/atom-feed)
   [[filename valid/filename->blob-key]] (partial h/serve-file filename)
   [[range-or-nothing valid/articles-range-journal]] (h/journal range-or-nothing)
   [[slug->tree valid/slug->tree]] (h/tree slug->tree)

@@ -83,8 +83,8 @@
 
 (defn articles-range
   "items-range-or-default specialized for articles."
-  [from-to-default maybe-from-to]
-  (items-range-or-default maybe-from-to #(models/articles-default-range from-to-default)))
+  [default-count maybe-from-to]
+  (items-range-or-default maybe-from-to #(models/articles-default-range default-count)))
 
 (defn articles-range-admin
   [from-to]
