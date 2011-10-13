@@ -2,11 +2,16 @@
   (:use [clojure.java.io :only [resource]]
 	[ring.util.response :only [response content-type]]
         tlog.views.utility
-        [tlog.views.parts :only [base]]))
+        [tlog.views.parts :only [base not-allowed-rendition]]
+        [tlog.views.atom-feed :only [feed]]))
 
 (defn content-type-html
   [r]
   (content-type r "text/html"))
+
+(defn content-type-atom
+  [r]
+  (content-type r "application/atom+xml"))
 
 (defn assoc-fn
   "Return a vector v with function f applied to the element at index i."
@@ -41,7 +46,7 @@
         shell (case shell*
                 ;; For finalizing responses to a POST, to deliver a feed, or response to a GET (default):
                 :on-post [content-type-html response extract-buildup]
-                :atom-feed [constantly response extract-buildup]
+                :atom-feed [constantly content-type-atom response feed]
                 [constantly content-type-html response base])]
     #(apply comp (concat shell wrapped))))
 

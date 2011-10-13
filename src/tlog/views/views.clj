@@ -1,13 +1,13 @@
 (ns tlog.views.views
   (:use [ring.util.response :only [response]]
         tlog.views.parts
-        tlog.views.atom-feed
+        [tlog.views.atom-feed :only [entry]]
         [tlog.views.compose :only [defview defviews]]))
 
 
 (defviews
   ;; Views with no admin specific parts:
-  [atom-feed {:everyone [stub]}
+  [atom-feed {:everyone [entry]}
              :atom-feed]
   ;; Visitor/admin views:
   [journal {:everyone [journal-rendition

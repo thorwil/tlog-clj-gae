@@ -1,6 +1,6 @@
 (ns tlog.views.parts
   (:require [tlog.conf :as conf])
-  (:use hiccup.core
+  (:use [hiccup.core :only [html defhtml]]
 	[hiccup.page-helpers :only [doctype]]
         tlog.views.utility))
 
