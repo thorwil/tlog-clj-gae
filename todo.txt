@@ -1,3 +1,8 @@
+atom-feed.clj:
+Should link point to home, or feed URL?
+Get date of newest article for <updated>
+Clear up <id>
+
 Rename parts.clj html.clj
 Decide on home page content and journal URL
 
