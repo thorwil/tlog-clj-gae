@@ -49,9 +49,12 @@
 		      [from* to*]))]
     [headwards tailwards]))
 
+;; Since a special query with limit and offset is required to deliver items for paginated views,
+;; it's only straightforward to also add derived data for pagination (otherwise I would prefer to
+;; derive late, in the view).
 (defn items-paginated
-  "Retrieve a range of items with data for page navigation.
-   The process-fn argument allows easy access to the map, before wrapping it in :items in an outer map."
+  "Retrieve a range of items with data for page navigation. The process-fn argument allows easy
+   access to the map, before wrapping it in :items in an outer map."
   [kind from-to per-page sort-by process-fn]
   (let [total (get-total kind)
 	width (-> (reduce - from-to) abs inc)
