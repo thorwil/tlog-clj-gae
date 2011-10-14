@@ -148,7 +148,7 @@
 
 (def option-footer
      {:option-footer
-      (html [:footer [:p conf/footer]])})
+      (html [:footer [:p conf/copyright]])})
 
 (def option-noscript-warning
      {:option-noscript-warning
@@ -202,7 +202,7 @@
    [:head
     [:meta {:charset "utf-8"}]
     [:meta {:name "description" :content conf/meta-description}]
-    [:meta {:name "author" :content conf/meta-author}]
+    [:meta {:name "author" :content conf/author}]
     [:title (title-with title)]
 
     [:link {:href conf/font-link
@@ -367,11 +367,11 @@
 				    (switch-title-linked-true i)]))])
 
 (defhtml journal-rendition
-  [buildup]
+  [data]
   [:ul#journal
-   (for [i (:items buildup)]
+   (for [i (:items data)]
      (journal-li i))]
-  (maybe-page-navigation ((juxt :headwards :tailwards) buildup) "/"))
+  (maybe-page-navigation ((juxt :headwards :tailwards) data) "/"))
 
 (defhtml admin-articles-table-row
   [slug delete-queued title]
@@ -383,12 +383,12 @@
    [:td [:a.view {:href (str "/" slug)} title]]])
 
 (defhtml admin-rendition
-  [buildup]
+  [data]
   [:h2 "Articles"]
   [:table#stored-items
-   (for [i (:items buildup)]
+   (for [i (:items data)]
      (admin-articles-table-row (:slug i) (:delete-queued i) (:title i)))]
-  (maybe-page-navigation ((juxt :headwards :tailwards) buildup) "/admin/"))
+  (maybe-page-navigation ((juxt :headwards :tailwards) data) "/admin/"))
 
 (defhtml article-form-rendition
   [_]
@@ -413,16 +413,16 @@
    [:td [:a {:href (str "/" filename) :class "view"} filename]]])
 
 (defhtml file-form-rendition
-  [buildup]
+  [data]
   [:h2 "File upload"]
   [:input {:type "file" :name "files" :multiple "" :style "height: 1.5em; margin-bottom: 1.5em;"}]
   [:table#stored-items
-   (for [i (:items buildup)]
+   (for [i (:items data)]
      (file-form-tr i))]
   [:script {:type "text/javascript" :src "http://www.google.com/jsapi"}]
   [:script {:type "text/javascript"} "google.load('jquery', '1.4');"]
   [:script {:type "text/javascript" :src "/scripts/file.js"}]
-  (maybe-page-navigation ((juxt :headwards :tailwards) buildup) "/admin/file/"))
+  (maybe-page-navigation ((juxt :headwards :tailwards) data) "/admin/file/"))
 
 (def not-found-rendition
      {:buildup (html [:p "Page not found."])})

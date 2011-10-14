@@ -1,7 +1,5 @@
 atom-feed.clj:
-Should link point to home, or feed URL?
-Get date of newest article for <updated>
-Clear up <id>
+Move deriving latest from models.clj to atom-feed.clj
 
 Rename parts.clj html.clj
 Decide on home page content and journal URL
@@ -20,6 +18,7 @@ G-channel update admin article list
 Handle delete/cancel-delete asynchronously
 Thumbnails
 Blog-wide search
+Look into offering older articles via the feed
 Pages as sequences of blocks
 
 Testing
