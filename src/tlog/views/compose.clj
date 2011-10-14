@@ -2,7 +2,7 @@
   (:use [clojure.java.io :only [resource]]
 	[ring.util.response :only [response content-type]]
         tlog.views.utility
-        [tlog.views.parts :only [base not-allowed-rendition]]
+        [tlog.views.html :only [base not-allowed-rendition]]
         [tlog.views.atom-feed :only [feed]]))
 
 (defn content-type-html

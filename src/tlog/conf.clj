@@ -22,7 +22,7 @@
 (def author "Thorsten Wilms")
 
 
-;; Used in parts.clj and atom-feed.clj:
+;; Used in html.clj and atom-feed.clj:
 
 (def copyright "Copyright 2011 Thorsten Wilms, unless otherwise noted.")
 

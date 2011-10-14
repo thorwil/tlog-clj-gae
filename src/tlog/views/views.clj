@@ -1,6 +1,6 @@
 (ns tlog.views.views
   (:use [ring.util.response :only [response]]
-        tlog.views.parts
+        tlog.views.html
         [tlog.views.atom-feed :only [feed-rendition]]
         [tlog.views.compose :only [defview defviews]]))
 
