@@ -28,7 +28,15 @@
      [:link {:rel "alternate" :href link}]
      [:content {:type "html"} (escape-html body)]]))
 
+(defn derive-latest
+  "Take a map of articles (items). Return the newest timestamp found."
+  [items]
+  (let [times (mapcat #(map % items) [:created :updated])]
+    (apply max times)))
+
 (defn feed-rendition
   [{:keys [items] :as data}]
-  (assoc data :buildup (for [i items]
+  (assoc data :latest (derive-latest items)
+              :buildup (for [i items]
                          (entry i))))
+ 

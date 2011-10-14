@@ -47,15 +47,6 @@
 ;; Specialize b/articles-paginated* for just listing deletion-queue, title, link:
 (def articles-heads-paginated (partial b/articles-paginated* #(select-keys % [:slug :title])))
 
-(defn articles-feed
-  "Range of articles for a feed, with :latest holding the newest timestamp."
-  [from-to n]
-  (let [articles (articles-paginated from-to n)
-        items (:items articles)
-        times (mapcat #(map % items) [:created :updated])
-        latest (apply max times)]
-    (assoc articles :latest latest)))
-
 
 ;; Comments
 

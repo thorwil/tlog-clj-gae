@@ -1,6 +1,3 @@
-atom-feed.clj:
-Move deriving latest from models.clj to atom-feed.clj
-
 Rename parts.clj html.clj
 Decide on home page content and journal URL
 

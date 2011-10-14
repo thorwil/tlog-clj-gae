@@ -139,7 +139,7 @@
 
 (defn atom-feed
   []
-  (views/atom-feed (roles) (models/articles-feed (articles-default-range conf/articles-per-feed-page)
+  (views/atom-feed (roles) (models/articles-paginated (articles-default-range conf/articles-per-feed-page)
                                                       conf/articles-per-journal-page)))
 
 
