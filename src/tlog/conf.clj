@@ -25,7 +25,7 @@
 ;; Used in html.clj and atom-feed.clj:
 
 (def copyright "Copyright 2011 Thorsten Wilms, unless otherwise noted.")
-
+(def feed-url "http://www.thorstenwilms.com/atom")
 
 ;; Used in atom-feed.clj:
 

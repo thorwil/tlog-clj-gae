@@ -154,6 +154,13 @@
      {:option-noscript-warning
       (html [:noscript [:div#noscript-warning "This won't work with JavaScript disabled ;)"]])})
 
+(def option-feed-link
+  {:option-feed-link
+   (html [:link {:rel "alternate" 
+                 :type "application/atom+xml" 
+                 :href conf/feed-url
+                 :title conf/title-main}])})
+
 
 ;; Switchables
 
@@ -192,6 +199,7 @@
 (defhtml base
   "Outer page skeleton."
   [{:keys [title
+           option-feed-link
 	   option-noscript-warning
 	   buildup
 	   option-admin-bar
@@ -204,7 +212,7 @@
     [:meta {:name "description" :content conf/meta-description}]
     [:meta {:name "author" :content conf/author}]
     [:title (title-with title)]
-
+    option-feed-link
     [:link {:href conf/font-link
 	    :rel "stylesheet"
 	    :type "text/css"}]

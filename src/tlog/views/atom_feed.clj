@@ -1,7 +1,7 @@
 (ns tlog.views.atom-feed
   "Functions for buidling an atom feed."
   (:use [hiccup.core :only [html defhtml escape-html]]
-        [tlog.conf :only [domain title-main author author-email copyright]]
+        [tlog.conf :only [domain feed-url title-main author author-email copyright]]
         [tlog.views.utility :only [ms-to-rfc-3339]]))
 
 
@@ -9,7 +9,7 @@
   [{:keys [latest buildup]}]
   (str "<?xml version=\"1.0\" encoding=\"utf-8\"?>")
   [:feed {:xmlns "http://www.w3.org/2005/Atom"}
-   [:id (str domain "atom")]
+   [:id feed-url]
    [:title title-main]
    [:link {:rel "self" :href "/atom"}]
    [:updated (ms-to-rfc-3339 latest)]

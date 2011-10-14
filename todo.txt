@@ -1,10 +1,7 @@
-Rename parts.clj html.clj
 Decide on home page content and journal URL
 
 Features
 --------
-RSS
-  <link rel=”alternate” type=”application/rss+xml” title=”Atom feed” href=”link+to+your+feed”/>
 Channels
 Tags
 Series
