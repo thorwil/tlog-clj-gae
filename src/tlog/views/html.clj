@@ -398,6 +398,18 @@
      (admin-articles-table-row (:slug i) (:delete-queued i) (:title i)))]
   (maybe-page-navigation ((juxt :headwards :tailwards) data) "/admin/"))
 
+(def true-before-falses
+  "Lazy list of true followed by infinte times false."
+  (lazy-cat [true] (repeat false)))
+
+(defn feed-selection
+  []
+  [:fieldset
+   [:legend "Include in the following feeds:"]
+   (mapcat #(html [:input (into {:type "checkbox"}
+                                (when %1 {:checked "checked"}))
+                   %2]) true-before-falses conf/feeds)])
+
 (defhtml article-form-rendition
   [_]
   [:h2 "Write Article"]
@@ -408,6 +420,7 @@
    [:tr
     [:td [:label "Slug"]]
     [:td [:input {:type "text" :name "slug" :required "required" :pattern "[a-zäöüß0-9_-]*"}]]]]
+  (feed-selection)
   [:div {:id "slug" :class "article-body hyphenate admin-editable start-blank"} ""]
   [:input {:type "submit" :value "Add new article" :disabled "disabled"}])
 

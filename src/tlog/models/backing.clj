@@ -10,9 +10,6 @@
 
 ;; Entities
 
-(ds/defentity SlugRel [^:key slug, article-id])
-;; Use datastore given ID of the Article as article-id, and thus as parent for 1st level Comments.
-  
 (ds/defentity Article [title, body, created, updated])
 ;; Letting the datastore generate keys allows referencing Articles from Comments, independent of
 ;; slugs.
@@ -22,8 +19,15 @@
 (ds/defentity DeletionQueueItem [^:key identifier])
 ;; Use queued tasks for cancelable, delayed deletion (instead of asking: are you sure?).
 ;; Initially, there was no programmatic way to delete queued tasks, and there is still none
-;; accessible via appengine-magic. So instead have the tasks execute deletion only if there still
-;; is a matching DeletionQueueItem.
+;; accessible via appengine-magic. So instead have the tasks execute deletion only if there's
+;; a matching DeletionQueueItem.
+
+;; Map a slug to an Article:
+(ds/defentity SlugRel [^:key slug, article-id])
+;; Use datastore given ID of the Article as article-id, and thus as parent for 1st level Comments.
+
+;; Map an Article to a feed, one Article can be in several feeds:
+(ds/defentity FeedRel [article-id, feed])
 
 
 ;; Pagination functions used for both Article and BlobInfo

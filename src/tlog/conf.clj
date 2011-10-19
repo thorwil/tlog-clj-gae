@@ -27,8 +27,17 @@
 (def copyright "Copyright 2011 Thorsten Wilms, unless otherwise noted.")
 (def feed-url "http://www.thorstenwilms.com/atom")
 
+
 ;; Used in atom-feed.clj:
 
 (def articles-per-feed-page 10)
 (def domain "http://www.thorstenwilms.com/")
 (def author-email "self@thorstenwilms.com")
+
+
+;; Used in html.clj:
+;; Feeds of selected articles will change rarely, if ever, so they are hard-coded:
+(def feeds '[journal
+             planet-ubuntu ;; http://planet.ubuntu.com/
+             planet-linuxaudio ;; http://planet.linuxaudio.org/
+             graphicsplanet]) ;; http://www.graphicsplanet.org/

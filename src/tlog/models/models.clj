@@ -15,7 +15,7 @@
 
 (defn add-article!
   [{:strs [title slug body]}]
-  (let [body-t (-> body ds/as-text)
+  (let [body-t (ds/as-text body)
 	now (System/currentTimeMillis)
 	id (ds/key-id (ds/save! (Article. title body-t now now)))]
     (ds/save! (SlugRel. slug id))))
