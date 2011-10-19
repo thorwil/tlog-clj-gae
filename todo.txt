@@ -1,6 +1,5 @@
 Feeds:
   Add feed checkboxes to Article form and view
-  Style fieldset and checkboxes
   Adjust route
 
 Decide on home page content and journal URL

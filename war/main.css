@@ -231,6 +231,12 @@ input[type='submit'] {
    margin-top:1.5em;
    height:1.7em;
 }
+input[type='checkbox'] {
+   margin-right:0.5em!important; /* Has to trump ext-all.css */
+}
+input[type='checkbox'] + input[type='checkbox'] {
+   margin-left:1.5em;
+}
 .warning {
    background:#fe9;
 }
@@ -241,8 +247,12 @@ input[type='submit'] {
    border:0.05em solid #999;
 }
 .editable {
-  cursor:text;
-  word-wrap: break-word;
+   cursor:text;
+   word-wrap: break-word;
+}
+fieldset {
+   margin-top:1.5em!important; /* Has to trump ext-all.css */
+   border-style:none;
 }
 
 /* Comments
