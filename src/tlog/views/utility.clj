@@ -48,3 +48,7 @@
 (def ms-to-day-time (ms-to* "yyyy-MM-dd '<span class=\"hour-minute\">'H:mm'</span>'"))
 (def ms-to-datetime (ms-to* "yyyy-MM-dd'T'H:mm:ss'+00:00'"))
 (def ms-to-rfc-3339 (ms-to* "yyyy-MM-dd'T'HH:mm:ssZ")) ;; as required for Atom feeds
+
+(def true-before-falses
+  "Lazy list of true followed by infinte times false."
+  (lazy-cat [true] (repeat false)))

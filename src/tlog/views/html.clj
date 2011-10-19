@@ -1,8 +1,8 @@
 (ns tlog.views.html
-  (:require [tlog.conf :as conf])
+  (:require [tlog.conf :as conf]
+            [tlog.views.utility :as u])
   (:use [hiccup.core :only [html defhtml]]
-	[hiccup.page-helpers :only [doctype]]
-        tlog.views.utility))
+	[hiccup.page-helpers :only [doctype]]))
 
 
 ;; Optional HTML parts
@@ -14,7 +14,7 @@
    keyname, if none is given. Return a form that returns the body as value to the keyname in a
    hash-map."
   [name* & more]
-  (let [[name args*] (name-with-attributes name* more)
+  (let [[name args*] (u/name-with-attributes name* more)
         [args body] args*
         k (or (nth args* 2 nil) (keyword name*))]
     `(defn ~name ~args
@@ -35,7 +35,7 @@
   [:span text])
 
 (def admin-bar-defaults
-  (map-map admin-bar-item-linked admin-bar-item-strings))
+  (u/map-map admin-bar-item-linked admin-bar-item-strings))
 
 (defn admin-bar-items
   "Takes a key for the plain item. Returns items for the admin-bar."
@@ -185,7 +185,7 @@
 
 (def switch-comment-deleter-false
   {:switch-comment-deleter
-   any->nil})
+   u/any->nil})
 
 
 ;; HTML Parts
@@ -265,7 +265,7 @@
 ;; Timestamps get converted from UTC to local time via time.js, which has to rebuild the HTML
 (defhtml time*
   [t attr-map]
-  [:time (into {:datetime (ms-to-datetime t)} attr-map) (ms-to-day-time t)])
+  [:time (into {:datetime (u/ms-to-datetime t)} attr-map) (u/ms-to-day-time t)])
 
 (defhtml time-created
   [t]
@@ -397,10 +397,6 @@
    (for [i (:items data)]
      (admin-articles-table-row (:slug i) (:delete-queued i) (:title i)))]
   (maybe-page-navigation ((juxt :headwards :tailwards) data) "/admin/"))
-
-(def true-before-falses
-  "Lazy list of true followed by infinte times false."
-  (lazy-cat [true] (repeat false)))
 
 (defn feed-selection
   []
