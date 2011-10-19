@@ -29,9 +29,6 @@
   [f m]
   (into (empty m) (for [[k v] m] [k (f v)])))
 
-(defmacro when-> [x & fs]
-  `(when ~x (-> ~x ~@fs)))
-
 (defn any->nil
   "Take whatever arguments and always return nil. Useful for neutralizing arguments in Hiccup forms."
   [& more]
