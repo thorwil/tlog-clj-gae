@@ -5,7 +5,9 @@
 
    Triggering this script via slime-load-hook does not work, as appengine-magic tries to determine
    what kind of environment it runs in (see its in-appengine-interactive-mode?), resulting in
-   ae/serve being unavailabel, then."
+   ae/serve being unavailabel, then.
+
+   Recommended Leiningen swank-clojure plugin version: 1.3.2."
   (:require [appengine-magic.core :as ae]
             [tlog.routes.routes]))
 
