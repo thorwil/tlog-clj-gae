@@ -209,15 +209,21 @@ a.comment-anchor {
 p#slug * {
    margin-top:1.3em;
 }
-label {
-   margin-right:1ex;
-}
 table.form {
    border-collapse:collapse;
    margin-top:-0.2em;
 }
-label:after {
+label {
+   margin-right:1ex;
+}
+input+label {
+   margin-right:1.5em;
+}
+label:after { /* colon after labels ... */
    content:":";
+}
+input+label:after { /* ... but not for labels following inputs */
+   content:"";
 }
 input {
    font-size:100%;

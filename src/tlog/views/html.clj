@@ -144,7 +144,7 @@
           (html
            [:script "var serverNow = " (System/currentTimeMillis) ";"]
            [:script {:src "/scripts/time.js"}]))
-  :collected-scripts)
+    :collected-scripts)
 
 (def option-footer
      {:option-footer
@@ -402,9 +402,10 @@
   []
   [:fieldset
    [:legend "Include in the following feeds:"]
-   (mapcat #(html [:input (into {:type "checkbox"}
-                                (when %1 {:checked "checked"}))
-                   %2]) true-before-falses conf/feeds)])
+   (for [[label checked] conf/feeds]
+     [:input (into {:type "checkbox" :name label}
+                   (when checked {:checked "checked"}))
+      [:label label]])])
 
 (defhtml article-form-rendition
   [_]

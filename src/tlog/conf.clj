@@ -37,7 +37,11 @@
 
 ;; Used in html.clj:
 ;; Feeds of selected articles will change rarely, if ever, so they are hard-coded:
-(def feeds '[journal
-             planet-ubuntu ;; http://planet.ubuntu.com/
-             planet-linuxaudio ;; http://planet.linuxaudio.org/
-             graphicsplanet]) ;; http://www.graphicsplanet.org/
+;; (def feeds '[journal
+;;              planet-ubuntu ;; http://planet.ubuntu.com/
+;;              planet-linuxaudio ;; http://planet.linuxaudio.org/
+;;              graphicsplanet]) ;; http://www.graphicsplanet.org/
+(def feeds (array-map "journal" true
+                      "planet-ubuntu" true ;; http://planet.ubuntu.com/
+                      "planet-linuxaudio" false ;; http://planet.linuxaudio.org/
+                      "graphicsplanet" false)) ;; http://www.graphicsplanet.org/
