@@ -4,21 +4,33 @@
 	    [appengine-magic.services.task-queues :as task]
 	    [tlog.conf :as conf]
             [tlog.models.backing :as b])
-  (:use [tlog.models.utility :only [keywordize update-in-if-key]])
+  (:use [clojure.string :only [split]]
+        [tlog.models.utility :only [keywordize update-in-if-key]])
   (:import tlog.models.backing.Article
            tlog.models.backing.SlugRel
+           tlog.models.backing.FeedRel
            tlog.models.backing.Comment
            tlog.models.backing.DeletionQueueItem))
 
 
 ;; Articles
 
+(defn add-feed-rels!
+  [article-id feeds-string]
+  (let [fs (split feeds-string #" ")
+        fs (partition 2 fs)
+        fs (filter #(= "true" (second %)) fs)
+        fs (map first fs)]
+    (doseq [feed-name fs]
+      (ds/save! (FeedRel. article-id feed-name))))) 
+
 (defn add-article!
-  [{:strs [title slug body]}]
+  [{:strs [title slug body feeds]}]
   (let [body-t (ds/as-text body)
 	now (System/currentTimeMillis)
 	id (ds/key-id (ds/save! (Article. title body-t now now)))]
-    (ds/save! (SlugRel. slug id))))
+    (ds/save! (SlugRel. slug id))
+    (add-feed-rels! id feeds)))
 
 (defn update-article!
   "Save Article to datastore."

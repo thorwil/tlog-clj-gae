@@ -1,18 +1,19 @@
 "use strict";
 
-/* To be defined prior to referencing this file:
-   - channel = new goog.appengine.Channel('token'); with custom token
-   - var slugs as array of slugs in use;
-
-   Open a channel with the token to receive updates on the slugs in use.
-
-   Compare current slug field value to switch between "Move" and "Overwrite"
-   text on the submit button. Also change slug field background color.
-
-   Actions on key input:
-   - Reject invalid chars.
-   - Enable submit button if all 3 fields are filled, else make sure it's disabled.
-
+/* Functions for a form for adding articles.
+ *
+ * To be defined prior to referencing this file:
+ * - channel = new goog.appengine.Channel('token'); with custom token
+ * - var slugs as array of slugs in use;
+ *
+ * Open a channel with the token to receive updates on the slugs in use.
+ *
+ * Compare current slug field value to switch between "Move" and "Overwrite"
+ * text on the submit button. Also change slug field background color.
+ *
+ * Actions on key input:
+ * - Reject invalid chars.
+ * - Enable submit button if all 3 fields are filled, else make sure it's disabled.
  */
 
 function setSlugs(message){
@@ -29,6 +30,7 @@ var titleInput = $('[name="title"]');
 var slugInput = $('[name="slug"]');
 var textArea = $('div#slug');
 var submitButton = $('[type="submit"]');
+var feedCheckboxes = $('[type="checkbox"]');
 
 function convertToSlug(text){
     return text
@@ -84,14 +86,23 @@ textArea.keyup(function(){
 		   updateSubmitButton(slugInput.val());
 	       });
 
+function getFeedCheckboxString() {
+    var s = "";
+    feedCheckboxes.each(function() {
+			    s = s + this.name + " " + this.checked + " ";
+			});
+    return s.slice(0, -1); // Drop last character, as it's a " "
+}
+
 // Submit button, submit article
 function submit() {
     $.post('/admin/add-article',
-	   {slug: slugInput.val(),
-	    title: titleInput.val(),
-	    body: textArea.html(),
-	    redir: slugInput.val()},
-	   function(data){location.href = '/' + slugInput.val();});
+    	   {slug: slugInput.val(),
+    	    title: titleInput.val(),
+    	    body: textArea.html(),
+	    feeds: getFeedCheckboxString(),
+    	    redir: slugInput.val()},
+    	   function(data){location.href = '/' + slugInput.val();});
 }
 
 submitButton[0].onclick = function() { submit(); };

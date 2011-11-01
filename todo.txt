@@ -2,6 +2,7 @@ Feeds:
   Add feed checkboxes to Article form and view
   Adjust route
 
+Drop the time element
 Decide on home page content and journal URL
 
 Features
