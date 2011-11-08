@@ -102,3 +102,7 @@
 (with-monad maybe-m
   (def slug->tree (m-chain [not-empty
                             models/slug->tree])))
+
+(defn feed-name
+  [s]
+  (some #{s} (keys conf/feeds)))

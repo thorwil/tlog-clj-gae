@@ -20,13 +20,15 @@
   (let [fs (split feeds-string #" ")
         fs (partition 2 fs)
         fs (filter #(= "true" (second %)) fs)
-        fs (map first fs)]
+        fs (map first fs)
+        now (System/currentTimeMillis)]
     (doseq [feed-name fs]
-      (ds/save! (FeedRel. article-id feed-name))))) 
+      (ds/save! (FeedRel. article-id feed-name now))))) 
 
 (defn add-article!
   [{:strs [title slug body feeds]}]
-  (let [body-t (ds/as-text body)
+  (let [body-t (ds/as-text body) ;; Converts to com.google.appengine.api.datastore.Text if too long.
+                                 ;; Otherwise stays java.lang.String.
 	now (System/currentTimeMillis)
 	id (ds/key-id (ds/save! (Article. title body-t now now)))]
     (ds/save! (SlugRel. slug id))
@@ -94,6 +96,17 @@
                      :creation
                      #(for [b %]
                         (b/assoc-delete-queued-property b :filename))))
+
+
+;; Feed
+
+(defn feed
+  "Retrieve Articles for an Atom feed. Takes the name of a feed and the number of items to include."
+  [feed-name per-page]
+  (let [rs (ds/query :kind FeedRel :filter (= :feed feed-name) :limit per-page :sort [[:created :dsc]])
+        as (map #(b/article (-> % :article-id Integer.)) rs)
+        as (map b/unText-body as)]
+    {:items as}))
 
 
 ;; Deletion queue functions for Articles, Blobs and Comments

@@ -6,23 +6,23 @@
 
 
 (defhtml feed
-  [{:keys [latest buildup]}]
+  [{:keys [feed-name latest buildup]}]
   (str "<?xml version=\"1.0\" encoding=\"utf-8\"?>")
   [:feed {:xmlns "http://www.w3.org/2005/Atom"}
    [:id feed-url]
    [:title title-main]
-   [:link {:rel "self" :href "/atom"}]
-   [:updated (ms-to-rfc-3339 latest)]
+   [:link {:rel "self" :href (str "/atom/" feed-name)}]
+   (when latest [:updated (ms-to-rfc-3339 latest)])
    [:author
     [:name author]
     [:email author-email]]
    buildup])
 
 (defhtml entry
-  [{:keys [slug updated body]}]
+  [{:keys [slug title updated body]}]
   (let [link (str domain slug)]
     [:entry
-     [:title "foo"]
+     [:title title]
      [:id link]
      [:updated (ms-to-rfc-3339 updated)]
      [:link {:rel "alternate" :href link}]
@@ -30,13 +30,13 @@
 
 (defn derive-latest
   "Take a map of articles (items). Return the newest timestamp found."
-  [items]
-  (let [times (mapcat #(map % items) [:created :updated])]
+  [articles]
+  (let [times (mapcat #(vals (select-keys % [:created :updated])) articles)]
     (apply max times)))
 
 (defn feed-rendition
-  [{:keys [items] :as data}]
-  (assoc data :latest (derive-latest items)
-              :buildup (for [i items]
-                         (entry i))))
- 
+  [{:keys [items]}]
+  (if (empty? items)
+    {}
+    {:latest (derive-latest items)
+     :buildup (map entry items)}))

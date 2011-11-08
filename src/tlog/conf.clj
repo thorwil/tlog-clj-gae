@@ -25,7 +25,7 @@
 ;; Used in html.clj and atom-feed.clj:
 
 (def copyright "Copyright 2011 Thorsten Wilms, unless otherwise noted.")
-(def feed-url "http://www.thorstenwilms.com/atom")
+(def feed-url "http://www.thorstenwilms.com/atom/journal")
 
 
 ;; Used in atom-feed.clj:
@@ -37,10 +37,6 @@
 
 ;; Used in html.clj:
 ;; Feeds of selected articles will change rarely, if ever, so they are hard-coded:
-;; (def feeds '[journal
-;;              planet-ubuntu ;; http://planet.ubuntu.com/
-;;              planet-linuxaudio ;; http://planet.linuxaudio.org/
-;;              graphicsplanet]) ;; http://www.graphicsplanet.org/
 (def feeds (array-map "journal" true
                       "planet-ubuntu" true ;; http://planet.ubuntu.com/
                       "planet-linuxaudio" false ;; http://planet.linuxaudio.org/

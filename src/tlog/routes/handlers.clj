@@ -138,9 +138,9 @@
       (alter-response #(assoc % :status 404))))
 
 (defn atom-feed
-  []
-  (views/atom-feed (roles) (models/articles-paginated (articles-default-range conf/articles-per-feed-page)
-                                                      conf/articles-per-journal-page)))
+  [feed-name]
+  (views/atom-feed (roles) (assoc (models/feed feed-name conf/articles-per-feed-page)
+                             :feed-name feed-name)))
 
 
 ;; Visitor/Admin POST handlers

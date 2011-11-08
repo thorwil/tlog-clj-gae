@@ -1,8 +1,7 @@
 Feeds:
-  Add feed checkboxes to Article form and view
-  Adjust route
+  Filter journal HTML view by FeedRel
+  Add feed checkboxes to Article views
 
-Drop the time element
 Decide on home page content and journal URL
 
 Features

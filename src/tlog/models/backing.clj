@@ -27,7 +27,11 @@
 ;; Use datastore given ID of the Article as article-id, and thus as parent for 1st level Comments.
 
 ;; Map an Article to a feed, one Article can be in several feeds:
-(ds/defentity FeedRel [article-id, feed])
+(ds/defentity FeedRel [article-id, feed, created])
+;; The created timestamp is required to for fetching the n most recent FeedRels, pointing to the
+;; Articles that shall be shown in the feed. It is desired that changing feed membership may lead to
+;; an older Article appearing in a feed, as for that feed, it will be new. For this reason, the
+;; timestamp refers to Feedel creation, not Article creation.
 
 
 ;; Pagination functions used for both Article and BlobInfo
@@ -110,7 +114,9 @@
   [id]
   (let [a (ds/retrieve Article id)]
     (when-not (empty? a)
-      (assoc (update-in a [:body] #(safe-get-value %)) :id id))))
+      (assoc (update-in a [:body] #(safe-get-value %))
+        :id id
+        :slug (article-id->slug id)))))
 
 (defn articles
   "All Articles."
@@ -145,12 +151,16 @@
     (assoc-delete-queued-property a :slug)))
 
 (defn unText-body
-  "Convert body property of post from com.google.appengine.api.datastore.Text to java.lang.String."
+  "Convert body property of post from com.google.appengine.api.datastore.Text to java.lang.String,
+   or just pass through a given java.lang.String."
   [post]
-  (update-in post [:body] (fn [b] (.getValue b))))
+  (if (= (-> post :body type) java.lang.String)
+    post
+    (update-in post [:body] (fn [b] (.getValue b)))))
 
 (defn articles-paginated*
-  "Template for retrieving a from-to of Articles with data for page navigation."
+  "Template for retrieving a from-to of Articles with data for page navigation. Takes function f for
+   processing each Article, and index range from-to and the number of Articles per-page."
   [f from-to per-page]
   (items-paginated Article
 		   from-to per-page

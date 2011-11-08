@@ -40,10 +40,9 @@
   ["update-comment"] h/update-comment!)
 
 (defroutes get-routes
-  ;; Match for root, using default range, or match given index range:
   ["login" &] (-> (user/login-url) redirect constantly)
   ["logout" &] (-> (user/logout-url) redirect constantly)
-  ["atom" &] (h/atom-feed)
+  ["atom" [feed-name valid/feed-name] &] (h/atom-feed feed-name)
   [[filename valid/filename->blob-key]] (partial h/serve-file filename)
   [[range-or-nothing valid/articles-range-journal]] (h/journal range-or-nothing)
   [[slug->tree valid/slug->tree]] (h/tree slug->tree)
