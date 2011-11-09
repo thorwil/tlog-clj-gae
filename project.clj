@@ -6,4 +6,4 @@
                  [org.clojure/math.numeric-tower "0.0.1"]
 		 [net.cgrand/moustache "1.0.0"]
 		 [hiccup "0.3.6"]]
-  :dev-dependencies [[appengine-magic "0.4.6-SNAPSHOT"]])
+  :dev-dependencies [[appengine-magic "0.4.6"]])
