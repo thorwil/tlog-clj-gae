@@ -109,21 +109,6 @@
     (.getValue s)
     ""))
 
-(defn article
-  "Article retrived by ID, or nil."
-  [id]
-  (let [a (ds/retrieve Article id)]
-    (when-not (empty? a)
-      (assoc (update-in a [:body] #(safe-get-value %))
-        :id id
-        :slug (article-id->slug id)))))
-
-(defn articles
-  "All Articles."
-  []
-  (ds/query :kind Article))
-
-
 (defn slug->article-id
   "Used for route validation, on whether there's an Article for the given slug, in which case
    the id is returned. Does only look for a SlugRel, without checking if its article-id points
@@ -137,6 +122,20 @@
   "Slug associated with the ID of an Article."
   [id]
   (-> (ds/query :kind SlugRel :filter (= :article-id id)) first :slug))
+
+(defn article
+  "Article retrived by ID, or nil."
+  [id]
+  (let [a (ds/retrieve Article id)]
+    (when-not (empty? a)
+      (assoc (update-in a [:body] #(safe-get-value %))
+        :id id
+        :slug (article-id->slug id)))))
+
+(defn articles
+  "All Articles."
+  []
+  (ds/query :kind Article))
 
 (defn articles-heads
   []
