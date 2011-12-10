@@ -120,7 +120,7 @@
 (defn journal
   "List of Articles with full bodies."
   [from-to]
-  (views/journal (roles) (models/articles-paginated from-to conf/articles-per-journal-page)))
+  (views/journal (roles) (models/journal from-to conf/articles-per-journal-page)))
 
 (defn tree
   "Article with (nested) Comments."
@@ -139,7 +139,7 @@
 
 (defn atom-feed
   [feed-name]
-  (views/atom-feed (roles) (assoc (models/feed feed-name conf/articles-per-feed-page)
+  (views/atom-feed (roles) (assoc (models/feed feed-name conf/articles-per-feed-page 0)
                              :feed-name feed-name)))
 
 

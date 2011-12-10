@@ -57,23 +57,29 @@
 		      [from* to*]))]
     [headwards tailwards]))
 
-;; Since a special query with limit and offset is required to deliver items for paginated views,
-;; it's only straightforward to also add derived data for pagination (otherwise I would prefer to
-;; derive late, in the view).
+(defn item-range
+  "Retrieve a range of items."
+  [kind width offset sort-by]
+  (ds/query :kind kind
+            :limit width ; number of items
+            :offset offset ; 0 delivers newest item
+            :sort [[sort-by :dsc]]))
+	
+(defn paginate
+  "Add pagination data to a collection of items."
+  [items from-to per-page total]
+  (let [[headwards tailwards] (headwards-tailwards from-to per-page total)]
+    (hash-map-syms-as-keys items headwards tailwards)))
+
 (defn items-paginated
-  "Retrieve a range of items with data for page navigation. The process-fn argument allows easy
-   access to the map, before wrapping it in :items in an outer map."
-  [kind from-to per-page sort-by process-fn]
+  "Add pagination data to a collection of items."
+  [kind [from to] per-page sort-by process-fn]
   (let [total (get-total kind)
-	width (-> (reduce - from-to) abs inc)
-	offset (- total (first from-to))
-	items* (ds/query :kind kind
-			 :limit width ; number of items
-			 :offset offset ; 0 delivers newest item
-			 :sort [[sort-by :dsc]])
-	items (process-fn items*)
-	[headwards tailwards] (headwards-tailwards from-to per-page total)]
-	(hash-map-syms-as-keys items headwards tailwards)))
+	width (-> (- from to) abs inc)
+	offset (- total from)
+        items* (item-range kind width offset sort-by)
+	items (process-fn items*)]
+    (paginate items [from to] per-page total)))
 
 (defn default-range
   "Number range for the n last items to appear, if the url doesn't include a range."
@@ -161,16 +167,42 @@
   "Template for retrieving a from-to of Articles with data for page navigation. Takes function f for
    processing each Article, and index range from-to and the number of Articles per-page."
   [f from-to per-page]
-  (items-paginated Article
-		   from-to per-page
-		   :created
-		   (fn [as] (for [a as]
-			      (let [id (ds/key-id a)
-				    slug (article-id->slug id)]
-				((comp #(assoc-delete-queued-property % :slug)
-				       #(assoc % :slug slug :id id)
-				       f)
-				 a))))))
+  (paginated-item-range Article
+                        from-to per-page
+                        :created
+                        (fn [as] (for [a as]
+                                   (let [id (ds/key-id a)
+                                         slug (article-id->slug id)]
+                                     ((comp #(assoc-delete-queued-property % :slug)
+                                            #(assoc % :slug slug :id id)
+                                            f)
+                                      a))))))
+
+(defn derive-on-article
+  [article]
+  (let [id (ds/key-id article)
+        slug (article-id->slug id)]
+    ((comp #(assoc-delete-queued-property % :slug)
+           #(assoc % :slug slug :id id)
+           #(unText-body %)) article)))
+
+(defn journal-feed-article-ids
+  "List of IDs of all articles in the journal feed. In new to old order."
+  []
+  (map :article-id (ds/query :kind FeedRel :filter (= :feed "journal") :sort [[:created :dsc]])))
+
+(defn ids->articles
+  "All articles in the journal feed. In new to old order."
+  [ids]
+  (map (comp derive-on-article article) ids))
+
+(defn take-range
+  "Extract a range from a collection by index numbers. Expects high, low order. First index is 1."
+  [[from to] coll]
+  (let [total (count coll)
+        drop-first-n (max (- total from) 0)
+        drop-last-n (max (dec to) 0)]
+    (->> coll (drop drop-first-n) (drop-last drop-last-n))))
 
 
 ;; Comments

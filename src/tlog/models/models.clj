@@ -13,6 +13,22 @@
            tlog.models.backing.DeletionQueueItem))
 
 
+;; Feed
+
+(defn feed
+  "Retrieve Articles for an Atom feed. Takes the name of a feed, the number of items to include and
+   an index offset for the first Article."
+  [feed-name per-page offset]
+  (let [rs (ds/query :kind FeedRel
+                     :filter (= :feed feed-name)
+                     :offset offset
+                     :limit per-page
+                     :sort [[:created :dsc]])
+        as (map #(b/article (-> % :article-id Integer.)) rs)
+        as (map b/unText-body as)]
+    {:items as}))
+
+
 ;; Articles
 
 (defn add-feed-rels!
@@ -56,10 +72,20 @@
     (ds/save! (b/SlugRel. to id))))
 
 ;; Specialize b/articles-paginated* for a view including bodies:
-(def articles-paginated (partial b/articles-paginated* #(b/unText-body %)))
+;; (def articles-paginated (partial b/articles-paginated* #(b/unText-body %)))
 
 ;; Specialize b/articles-paginated* for just listing deletion-queue, title, link:
 (def articles-heads-paginated (partial b/articles-paginated* #(select-keys % [:slug :title])))
+
+(defn journal
+  "Retrieve Articles that are included in the journal feed."
+  [[from to] per-page]
+  (let [ids (b/journal-feed-article-ids)
+        total (count ids)]
+    (b/paginate (b/ids->articles (b/take-range [from to] ids))
+                [from to]
+                per-page
+                total)))
 
 
 ;; Comments
@@ -96,17 +122,6 @@
                      :creation
                      #(for [b %]
                         (b/assoc-delete-queued-property b :filename))))
-
-
-;; Feed
-
-(defn feed
-  "Retrieve Articles for an Atom feed. Takes the name of a feed and the number of items to include."
-  [feed-name per-page]
-  (let [rs (ds/query :kind FeedRel :filter (= :feed feed-name) :limit per-page :sort [[:created :dsc]])
-        as (map #(b/article (-> % :article-id Integer.)) rs)
-        as (map b/unText-body as)]
-    {:items as}))
 
 
 ;; Deletion queue functions for Articles, Blobs and Comments

@@ -1,7 +1,7 @@
 Feeds:
-  Filter journal HTML view by FeedRel
   Add feed checkboxes to Article views
 
+Clean up articles-paginated*
 Decide on home page content and journal URL
 
 Features
