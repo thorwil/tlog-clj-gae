@@ -168,6 +168,7 @@
    processing each Article, and index range from-to and the number of Articles per-page."
   [f from-to per-page]
   (paginated-item-range Article
+  (items-paginated Article
                         from-to per-page
                         :created
                         (fn [as] (for [a as]
