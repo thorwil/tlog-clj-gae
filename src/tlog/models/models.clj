@@ -71,11 +71,20 @@
     (ds/delete! old)
     (ds/save! (b/SlugRel. to id))))
 
-;; Specialize b/articles-paginated* for a view including bodies:
-;; (def articles-paginated (partial b/articles-paginated* #(b/unText-body %)))
-
-;; Specialize b/articles-paginated* for just listing deletion-queue, title, link:
-(def articles-heads-paginated (partial b/articles-paginated* #(select-keys % [:slug :title])))
+(defn articles-slug-title-paginated
+  "Retrieving a from-to of Articles, extract slug and title, add whether it's on the deletion queue
+   and data for page navigation."
+  [from-to per-page]
+  (b/items-paginated Article
+                     from-to per-page
+                     :created
+                     (fn [as] (for [a as]
+                                (let [id (ds/key-id a)
+                                      slug (b/article-id->slug id)]
+                                  ((comp #(b/assoc-delete-queued-property % :slug)
+                                         #(assoc % :slug slug :id id)
+                                         #(select-keys % [:slug :title]))
+                                   a))))))
 
 (defn journal
   "Retrieve Articles that are included in the journal feed."

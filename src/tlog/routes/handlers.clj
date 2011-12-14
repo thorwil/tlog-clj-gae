@@ -59,7 +59,7 @@
 (defn list-articles
   [from-to]
   (views/admin (roles)
-	       (assoc (models/articles-heads-paginated from-to conf/articles-per-admin-page) :title "Articles")))
+	       (assoc (models/articles-slug-title-paginated from-to conf/articles-per-admin-page) :title "Articles")))
 
 (defn article-form
   []

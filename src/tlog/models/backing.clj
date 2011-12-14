@@ -163,21 +163,6 @@
     post
     (update-in post [:body] (fn [b] (.getValue b)))))
 
-(defn articles-paginated*
-  "Template for retrieving a from-to of Articles with data for page navigation. Takes function f for
-   processing each Article, and index range from-to and the number of Articles per-page."
-  [f from-to per-page]
-  (items-paginated Article
-                        from-to per-page
-                        :created
-                        (fn [as] (for [a as]
-                                   (let [id (ds/key-id a)
-                                         slug (article-id->slug id)]
-                                     ((comp #(assoc-delete-queued-property % :slug)
-                                            #(assoc % :slug slug :id id)
-                                            f)
-                                      a))))))
-
 (defn derive-on-article
   [article]
   (let [id (ds/key-id article)
