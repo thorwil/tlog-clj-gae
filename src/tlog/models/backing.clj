@@ -167,7 +167,6 @@
   "Template for retrieving a from-to of Articles with data for page navigation. Takes function f for
    processing each Article, and index range from-to and the number of Articles per-page."
   [f from-to per-page]
-  (paginated-item-range Article
   (items-paginated Article
                         from-to per-page
                         :created
