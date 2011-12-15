@@ -24,7 +24,9 @@
 		    option-footer
 		    option-comment-js
 		    option-aloha]
-	 :admin [option-comments-admin-editable
+	 :admin [option-feed-selector
+                 derive-feed-selection
+                 option-comments-admin-editable
                  option-aloha-admin
                  switch-comment-deleter-true
 		 option-slug-form
@@ -40,6 +42,8 @@
 		      (option-admin-bar :file)
 		      option-noscript-warning]}]
   [article-form {:admin [article-form-rendition
+                         option-feed-selector
+                         feed-selector-defaults
 			 option-aloha
 			 option-aloha-admin
 			 option-article-js

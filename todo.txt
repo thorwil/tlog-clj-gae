@@ -1,7 +1,6 @@
 Feeds:
-  Add feed checkboxes to Article views
+  Save changes for feed checkboxes in Article views
 
-Clean up articles-paginated*
 Decide on home page content and journal URL
 
 Features
@@ -26,6 +25,7 @@ Cross-Browser
 
 Optimization
 ------------
+Only check article feed membership if you actually work with the info
 Memchache/memoization
 Minify JS and CSS
 Try to load less JS
@@ -33,16 +33,17 @@ Etags?
 Do something about older IEs lacking getElementsByClassName, used in time.js
 Do not try to remove CSS class empty for every single comment submission
 
+Comments
+--------
+# Validate the links
+# Update page with comments from other sessions
+
 # But how?
 --------
+Consider an architecture, where each view lists parts/info it needs only once, and queries are constructed automatically
 Make sure article content is put in <p>, to avoid <br>s
 Disable Aloha Save button until there are changes (even better: unless), look into smartContentChange
 Fix Aloha blocking in some new comment fields, when adding several comments in succession
 Stay exactly on baseline grid
 Get rid of dots in Aloha floating panel
 Automatically avoid collisions between article slugs and fixed routes
-
-Comments
---------
-# Validate the links
-# Update page with comments from other sessions

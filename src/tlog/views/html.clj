@@ -161,6 +161,27 @@
                  :href conf/feed-url
                  :title conf/title-main}])})
 
+(def feed-selector-defaults
+  {:feeds conf/feeds})
+
+(defopt derive-feed-selection
+  "Takes a list of feed names (from the argument map). Returns an array-map with a boolean value per
+   existing feed."
+  [{:keys [feeds]}]
+  (let [ks (keys conf/feeds)
+         vs (map #(-> (some #{%} feeds) nil? not) ks)]
+     (apply array-map (interleave ks vs))) :feeds)
+
+(defopt option-feed-selector
+  "Area for selecting the feeds an Article should appear in (checkboxes)."
+  [{:keys [feeds]}]
+  [:fieldset
+   [:legend "Include in the following feeds:"]
+   (for [[label checked] feeds]
+     [:input (into {:type "checkbox" :name label}
+                   (when checked {:checked "checked"}))
+      [:label label]])])
+
 
 ;; Switchables
 
@@ -292,11 +313,12 @@
 (defhtml article-rendition
   "Full article content to be used once on single pages and several times in the journal."
   [{:keys [id title created updated body
-	   option-slug-form switch-title-linked
+	   option-slug-form option-feed-selector switch-title-linked
 	   time-stamps css-class]}]
   [:article
    [:header
     option-slug-form
+    option-feed-selector
     [:h2 switch-title-linked]
     time-stamps]
     [:div {:id id :class (str "article-body hyphenate admin-editable " css-class)} body]])
@@ -398,17 +420,8 @@
      (admin-articles-table-row (:slug i) (:delete-queued i) (:title i)))]
   (maybe-page-navigation ((juxt :headwards :tailwards) data) "/admin/"))
 
-(defn feed-selection
-  []
-  [:fieldset
-   [:legend "Include in the following feeds:"]
-   (for [[label checked] conf/feeds]
-     [:input (into {:type "checkbox" :name label}
-                   (when checked {:checked "checked"}))
-      [:label label]])])
-
 (defhtml article-form-rendition
-  [_]
+  [{:keys [option-feed-selector]}]
   [:h2 "Write Article"]
   [:table.form
    [:tr
@@ -417,7 +430,7 @@
    [:tr
     [:td [:label "Slug"]]
     [:td [:input {:type "text" :name "slug" :required "required" :pattern "[a-zäöüß0-9_-]*"}]]]]
-  (feed-selection)
+  option-feed-selector
   [:div {:id "slug" :class "article-body hyphenate admin-editable start-blank"} ""]
   [:input {:type "submit" :value "Add new article" :disabled "disabled"}])
 

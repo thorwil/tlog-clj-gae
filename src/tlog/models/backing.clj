@@ -129,6 +129,11 @@
   [id]
   (-> (ds/query :kind SlugRel :filter (= :article-id id)) first :slug))
 
+(defn article-id->feeds
+  "List of feeds the article is in."
+  [id]
+  (map :feed (ds/query :kind FeedRel :filter (= :article-id id))))
+
 (defn article
   "Article retrived by ID, or nil."
   [id]
@@ -136,7 +141,8 @@
     (when-not (empty? a)
       (assoc (update-in a [:body] #(safe-get-value %))
         :id id
-        :slug (article-id->slug id)))))
+        :slug (article-id->slug id)
+        :feeds (article-id->feeds id)))))
 
 (defn articles
   "All Articles."
