@@ -1,6 +1,7 @@
 Feeds:
   Save changes for feed checkboxes in Article views
 
+Use :target to apply style based on URL fragment
 Decide on home page content and journal URL
 
 Features
@@ -40,7 +41,7 @@ Comments
 
 # But how?
 --------
-Consider an architecture, where each view lists parts/info it needs only once, and queries are constructed automatically
+Consider an architecture, where view parts take a map filled with fns to get info, passing the map on with the fns replaced.
 Make sure article content is put in <p>, to avoid <br>s
 Disable Aloha Save button until there are changes (even better: unless), look into smartContentChange
 Fix Aloha blocking in some new comment fields, when adding several comments in succession

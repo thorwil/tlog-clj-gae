@@ -169,7 +169,7 @@
    existing feed."
   [{:keys [feeds]}]
   (let [ks (keys conf/feeds)
-         vs (map #(-> (some #{%} feeds) nil? not) ks)]
+         vs (map #(some #{%} feeds) ks)]
      (apply array-map (interleave ks vs))) :feeds)
 
 (defopt option-feed-selector
