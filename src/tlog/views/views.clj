@@ -25,6 +25,7 @@
 		    option-comment-js
 		    option-aloha]
 	 :admin [option-feed-selector
+                 option-feed-selector-script
                  derive-feed-selection
                  option-comments-admin-editable
                  option-aloha-admin

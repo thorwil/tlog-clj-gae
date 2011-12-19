@@ -1,6 +1,3 @@
-Feeds:
-  Save changes for feed checkboxes in Article views
-
 Use :target to apply style based on URL fragment
 Decide on home page content and journal URL
 

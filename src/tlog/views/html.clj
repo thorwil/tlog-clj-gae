@@ -175,13 +175,19 @@
 (defopt option-feed-selector
   "Area for selecting the feeds an Article should appear in (checkboxes)."
   [{:keys [feeds]}]
-  [:fieldset
+  [:fieldset#feed-selectors
    [:legend "Include in the following feeds:"]
    (for [[label checked] feeds]
-     [:input (into {:type "checkbox" :name label}
+     [:input#feed (into {:type "checkbox" :name label}
                    (when checked {:checked "checked"}))
       [:label label]])])
 
+(defopt option-feed-selector-script
+  [{:keys [collected-scripts]}]
+    (cons collected-scripts
+          (html
+           [:script {:src "/scripts/feed_selection.js"}]))
+    :collected-scripts)
 
 ;; Switchables
 

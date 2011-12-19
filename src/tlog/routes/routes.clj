@@ -37,7 +37,8 @@
   ["move-article"] h/move-article!
   ["add-article"] h/add-article!
   ["update-article"] h/update-article!
-  ["update-comment"] h/update-comment!)
+  ["update-comment"] h/update-comment!
+  ["feed-selection-change"] h/feed-selection-change!)
 
 (defroutes get-routes
   ["login" &] (-> (user/login-url) redirect constantly)

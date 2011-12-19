@@ -114,6 +114,11 @@
   (models/update-comment! (params :form-params))
   (response "OK"))
 
+(defn feed-selection-change!
+  "Update which feeds an article belongs to"
+  [params]
+  (models/feed-selection-change! (params :form-params))
+  (response "OK"))
 
 ;; Visitor/Admin GET handlers
 

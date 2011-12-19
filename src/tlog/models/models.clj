@@ -28,6 +28,16 @@
         as (map b/unText-body as)]
     {:items as}))
 
+(defn feed-selection-change!
+  "Update on which feeds an Article belongs to, on a single feed-basis. Add or delete a FeeDrel, accordingly."
+  [{:strs [slug feed checked]}]
+  (let [id (b/slug->article-id slug)]
+    (if (= checked "true")
+      ;; Add FeedRel, as a checkbox has been turned on:
+      (ds/save! (FeedRel. id feed (System/currentTimeMillis)))
+      ;; Delete FeedRel, as a checkbox has been turned off:
+      (ds/delete! (ds/query :kind FeedRel :filter ((= :feed feed) (= :article-id id)))))))
+
 
 ;; Articles
 

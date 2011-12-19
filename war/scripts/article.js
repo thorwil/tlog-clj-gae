@@ -30,7 +30,7 @@ var titleInput = $('[name="title"]');
 var slugInput = $('[name="slug"]');
 var textArea = $('div#slug');
 var submitButton = $('[type="submit"]');
-var feedCheckboxes = $('[type="checkbox"]');
+var feedCheckboxes = $('input.feed, [type="checkbox"]');
 
 function convertToSlug(text){
     return text
