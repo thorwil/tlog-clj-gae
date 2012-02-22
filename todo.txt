@@ -1,3 +1,5 @@
+Fix Aloha Dots
+Fix pagination to fill the start page
 Use :target to apply style based on URL fragment
 Decide on home page content and journal URL
 
