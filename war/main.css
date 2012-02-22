@@ -461,3 +461,8 @@ article strong {
 article em {
    font-style:italic;
 }
+
+/* Fix Aloha list-style to get rid of dots in the floating menu */
+.GENTICS_floatingmenu li, .GENTICS_multisplit li {
+   list-style-type:none;
+}

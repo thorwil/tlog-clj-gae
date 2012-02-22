@@ -1,7 +1,7 @@
-Fix Aloha Dots
 Fix pagination to fill the start page
 Use :target to apply style based on URL fragment
 Decide on home page content and journal URL
+Try switching box model for better comment section layout
 
 Features
 --------
@@ -45,5 +45,4 @@ Make sure article content is put in <p>, to avoid <br>s
 Disable Aloha Save button until there are changes (even better: unless), look into smartContentChange
 Fix Aloha blocking in some new comment fields, when adding several comments in succession
 Stay exactly on baseline grid
-Get rid of dots in Aloha floating panel
 Automatically avoid collisions between article slugs and fixed routes
