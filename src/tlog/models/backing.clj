@@ -36,11 +36,6 @@
 
 ;; Pagination functions used for both Article and BlobInfo
 
-(defn get-total
-  "Query for number of datastore items of the given kind."
-  [kind]
-  (ds/query :kind kind :count-only? true))
-
 (defn headwards-tailwards
   "Determine values for headwards and tailwards, used for page navigation.
    Assumes newer-to-older = tail-to-head, higher-to-lower number ordering."
@@ -73,19 +68,19 @@
 
 (defn items-paginated
   "Add pagination data to a collection of items."
-  [kind [from to] per-page sort-by process-fn]
-  (let [total (get-total kind)
+  [kind [from to] per-page sort-by process-f total-f]
+  (let [total* (total-f)
 	width (-> (- from to) abs inc)
-	offset (- total from)
+	offset (- total* from)
         items* (item-range kind width offset sort-by)
-	items (process-fn items*)]
-    (paginate items [from to] per-page total)))
+	items (process-f items*)]
+    (paginate items [from to] per-page total*)))
 
 (defn default-range
   "Number range for the n last items to appear, if the url doesn't include a range."
-  [entity n]
-  (let [total (get-total entity)]
-    [total (- total (dec n))]))
+  [n total-f]
+  (let [t total-f]
+    [t (- t (dec n))]))
 
 
 ;; Enriching property maps for Articles, Blobs and Comments
@@ -195,6 +190,20 @@
         drop-last-n (max (dec to) 0)]
     (->> coll (drop drop-first-n) (drop-last drop-last-n))))
 
+(defn articles-total
+  "Query for number of Articles in a feed."
+  []
+  (ds/query :kind FeedRel :count-only? true))
+
+(defn articles-in-feed-total
+  "Query for number of Articles in a feed."
+  [feed-name]
+  (ds/query :kind FeedRel :filter (= :feed feed-name) :count-only? true))
+
+(defn articles-in-feed-paginated
+  [from-to per-page sort-by process-f feed-name]
+  (items-paginated Article from-to per-page sort-by process-f (articles-in-feed-total feed-name)))
+
 
 ;; Comments
 
@@ -211,6 +220,11 @@
   [id]
   (for [c (comments-for-parent id)]
     (cons c (comments (Integer. (:id c))))))
+
+(defn comments-total
+  "Query for number of all Comments."
+  []
+  (ds/query :kind Comment :count-only? true))
 
 
 ;; Trees (Article and Comments)
@@ -233,15 +247,24 @@
   (ds/query :kind "__BlobInfo__" :sort [[:creation :dsc]]))
 
 (defn blobs-heads
-  []
   "Filenames of Blobs."
+  []
   (for [b (blobs)]
     (select-keys b [:filename])))
 
 (defn blobs-heads-status
-  []
   "Maps of Blob properties plus whether a Blob is on the deletion queue."
+  []
   (assoc-delete-queued-property (blobs-heads) :filename))
+
+(defn blobs-total
+  "Query for number of Blobs."
+  []
+  (ds/query :kind "__BlobInfo__" :count-only? true))
+
+(defn blobs-paginated
+  [kind from-to per-page sort-by process-f]
+  (items-paginated kind from-to per-page sort-by process-f blobs-total))
 
 
 ;; Deletion queue functions for Articles, Blobs and Comments

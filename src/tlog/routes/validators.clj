@@ -78,21 +78,18 @@
    otherwise nil."
   [from-to default-from-to]
   (if (empty? from-to)
-    (default-from-to)
+    default-from-to
     (items-range from-to)))
 
-(defn articles-range
-  "items-range-or-default specialized for articles."
-  [default-count maybe-from-to]
-  (items-range-or-default maybe-from-to #(models/articles-default-range default-count)))
-
 (defn articles-range-admin
+  "Calculate from-to range for all Articles to be listed in an admin view."
   [from-to]
-  (articles-range conf/articles-per-admin-page from-to))
+  (items-range-or-default from-to (models/articles-default-range conf/articles-per-admin-page)))
 
 (defn articles-range-journal
+  "Calculate from-to range for all Articles in a feed."
   [from-to]
-  (articles-range conf/articles-per-journal-page from-to))
+  (items-range-or-default from-to (models/articles-in-feed-default-range conf/articles-per-journal-page "journal")))
 
 (defn blobs-range
   "items-range-or-default specialized for blobs."

@@ -7,8 +7,7 @@
   (:use [ring.util.response :only [response redirect]]
 	[net.cgrand.moustache :only [alter-response]]
 	[clojure.string :only [join]]
-	[appengine-magic.services.user :only [user-logged-in? user-admin?]]
-        [tlog.models.for_validators :only [articles-default-range]]))
+	[appengine-magic.services.user :only [user-logged-in? user-admin?]]))
 
 
 ;; Utility

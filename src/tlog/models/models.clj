@@ -94,7 +94,8 @@
                                   ((comp #(b/assoc-delete-queued-property % :slug)
                                          #(assoc % :slug slug :id id)
                                          #(select-keys % [:slug :title]))
-                                   a))))))
+                                   a))))
+                     b/articles-total))
 
 (defn journal
   "Retrieve Articles that are included in the journal feed."
@@ -115,7 +116,7 @@
   (let [parent* (Integer. parent)
 	body-t (-> body ds/as-text)
 	now (System/currentTimeMillis)
-	index (-> Comment b/get-total inc)] ; Start at 1, not 0, as this will be exposed in the view
+	index (-> Comment b/comments-total inc)] ; Start at 1, not 0, as this will be exposed in the view
     (-> (ds/save! (b/Comment. parent* index author link body-t now now))
         b/assoc-datastore-id-property
         b/unText-body)))
