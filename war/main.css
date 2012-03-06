@@ -434,7 +434,7 @@ article .to-be-replied-to,
 #comments .to-be-deleted, #comments .delete-queued {
    text-decoration:line-through;
 }
-#comments .anchored > p > a {
+#comments .anchored > p > a, a:target {
    /*font-weight:900;*/
    background-color:#b30;
    color:#fff;

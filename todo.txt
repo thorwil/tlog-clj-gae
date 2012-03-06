@@ -1,20 +1,19 @@
-Consider to use :target to apply style based on URL fragment
 Decide on home page content and journal URL
 Try switching box model for better comment section layout
 
 Features
 --------
+Thumbnails
 Tags
 Series
-Pingbacks
-Email notifications/subscriptions
 G-channel update blob list
 G-channel update admin article list
 Handle delete/cancel-delete asynchronously
-Thumbnails
-Blog-wide search
-Look into offering older articles via the feed
-Pages as sequences of blocks
+# Email notifications/subscriptions
+# Pingbacks
+# Blog-wide search
+# Look into offering older articles via the feed
+# Pages as sequences of blocks
 
 Testing
 -------
@@ -34,6 +33,7 @@ Do not try to remove CSS class empty for every single comment submission
 
 Comments
 --------
+Do not write "Reply" in comment fields, if JS is disabled
 # Validate the links
 # Update page with comments from other sessions
 
