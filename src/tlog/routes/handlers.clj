@@ -152,6 +152,6 @@
 (defn add-comment!
   "Handle Publish-button triggered POST for adding Comments."
   [{:keys [form-params]}]
-  ;; The same code used for renedering nested comments recursively is used for the single additional
+  ;; The same code used for rendering nested comments recursively is used for the single additional
   ;; comment, too. This leads to the need for the double list construct:
   (views/on-add-comment (roles) {:comments (list (list (models/add-comment! form-params)))}))

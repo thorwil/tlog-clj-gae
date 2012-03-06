@@ -116,7 +116,7 @@
   (let [parent* (Integer. parent)
 	body-t (-> body ds/as-text)
 	now (System/currentTimeMillis)
-	index (-> Comment b/comments-total inc)] ; Start at 1, not 0, as this will be exposed in the view
+	index (inc (b/comments-total))] ; Start at 1, not 0, as this will be exposed in the view
     (-> (ds/save! (b/Comment. parent* index author link body-t now now))
         b/assoc-datastore-id-property
         b/unText-body)))
